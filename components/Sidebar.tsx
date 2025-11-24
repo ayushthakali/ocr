@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useSidebar } from "@/context/contextSidebar";
 import { usePathname } from "next/navigation";
 import { Grid, UploadCloud, Image, ChevronsLeft, Menu } from "lucide-react";
 
 function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
+  const { isOpen, toggleSidebar } = useSidebar();
   const pathname = usePathname();
 
   const items = [
@@ -15,14 +15,14 @@ function Sidebar() {
     { title: "Gallery", url: "/gallery", icon: Image },
   ];
   return (
-    <aside >
+    <aside>
       <div
-        className={`sticky top-0 left-0 w-72 h-screen bg-gradient-to-b from-[#080808] to-[#0f0f0f] border-r border-gray-800 transition-all duration-300 px-1 ${
-          isOpen ? "translate-x-0" : "-translate-x-51"
+        className={`sticky top-0 left-0 w-72 min-h-screen bg-gradient-to-b from-[#080808] to-[#0f0f0f] border-r border-gray-800 transition-all duration-300  ${
+          isOpen ? "translate-x-0" : "-translate-x-52"
         }`}
       >
         {/* title */}
-        <div className="border-b border-gray-800 py-8 px-4 flex justify-between items-center">
+        <div className="border-b border-gray-800 py-6 px-4 flex justify-between items-center">
           <div>
             <h1 className="text-white text-5xl font-bold tracking-tight">
               OCR
@@ -30,8 +30,8 @@ function Sidebar() {
             <p className="text-gray-300 text-sm mt-1">Document Scanner</p>
           </div>
           <button
-            onClick={() => setIsOpen((prev) => !prev)}
-            className="flex-shrink-0 w-12 h-12 bg-gray-700 group hover:bg-gray-600 rounded-full flex items-center justify-center cursor-pointer"
+            onClick={toggleSidebar}
+            className="flex-shrink-0 w-12 h-12 bg-gray-700 border border-white/20 group hover:bg-gray-600 rounded-full flex items-center justify-center cursor-pointer"
           >
             {isOpen ? (
               <ChevronsLeft className="w-8 h-8 text-white group-hover:scale-105 transform transition-all duration-200 " />
