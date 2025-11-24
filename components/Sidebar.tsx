@@ -17,8 +17,8 @@ function Sidebar() {
   return (
     <aside >
       <div
-        className={`sticky top-0 left-0 w-72 h-screen bg-gradient-to-b from-[#080808] to-[#0f0f0f] border-r border-gray-800 transition-all duration-300  ${
-          isOpen ? "translate-x-0" : "-translate-x-52"
+        className={`sticky top-0 left-0 w-72 h-screen bg-gradient-to-b from-[#080808] to-[#0f0f0f] border-r border-gray-800 transition-all duration-300 px-1 ${
+          isOpen ? "translate-x-0" : "-translate-x-51"
         }`}
       >
         {/* title */}
@@ -69,7 +69,7 @@ function Sidebar() {
                   {
                     <item.icon
                       className={`w-6 h-6 group-hover:rotate-5 transition-all duration-300 ease-in
-                        ${isActive ? "text-white" : "text-gray-300"}`}
+                        ${isActive ? "text-white " : "text-gray-300"}`}
                     />
                   }
                 </div>
