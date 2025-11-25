@@ -1,5 +1,12 @@
+import Header from "@/components/Header";
+
 function Upload() {
-  return <div>Upload</div>;
+  return (
+    <section>
+      <Header title="Upload Document" />
+    
+    </section>
+  );
 }
 
 export default Upload;

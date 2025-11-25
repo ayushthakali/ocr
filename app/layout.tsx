@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
 import { SidebarProvider } from "@/context/contextSidebar";
 
 const geistSans = Geist({
@@ -32,10 +31,7 @@ export default function RootLayout({
       >
         <SidebarProvider>
           <Sidebar />
-          <div>
-            <Header />
-            <main>{children}</main>
-          </div>
+          <main className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f0f] to-[#0f0a10]">{children}</main>
         </SidebarProvider>
       </body>
     </html>
