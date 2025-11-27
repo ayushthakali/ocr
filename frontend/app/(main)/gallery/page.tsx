@@ -43,12 +43,12 @@ function Gallery() {
       <Header title="Gallery" />
 
       <div className="pt-32 px-4 pb-6">
-        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-8">
+        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-8 py-2">
           {receipts.map((recp) => (
             <div key={recp.id} className="relative group">
               <figure
                 onClick={() => handlePreview(recp.id)}
-                className="relative w-full h-76 cursor-pointer"
+                className="relative w-full h-76 cursor-pointer group-hover:scale-105 transform transition-transform duration-300 ease-in-out"
               >
                 <Image
                   src={recp.url}
@@ -58,7 +58,19 @@ function Gallery() {
                   priority
                 />
               </figure>
-              <div className="absolute inset-0 group-hover:bg-white/20 z-0 group-hover:" />
+
+              {/* Preview Button Overlay */}
+              <div className="absolute inset-0 bg-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center group-hover:scale-105 transform transition-transform duration-300 ease-in-out">
+                <button
+                  className="bg-black/80 hover:bg-black/50 border border-white/20 backdrop-blur-md px-4 py-2 text-sm rounded text-white font-medium cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePreview(recp.id);
+                  }}
+                >
+                  Preview
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -75,7 +87,7 @@ function Gallery() {
                 priority
               />
               <button
-                className="absolute top-2 right-2 text-white text-2xl font-bold"
+                className="absolute top-2 right-2 text-white text-2xl cursor-pointer font-bold"
                 onClick={() => setShowPreview(false)}
               >
                 ✕
