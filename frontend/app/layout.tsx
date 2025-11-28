@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import { SidebarProvider } from "@/context/contextSidebar";
+import { ChatboxProvider } from "@/context/contextChatbox";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,10 +30,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SidebarProvider>
-          <Sidebar />
-          <main className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f0f] to-[#0f0a10]">{children}</main>
-        </SidebarProvider>
+        <ChatboxProvider>
+          <SidebarProvider>
+            <Sidebar />
+            <main className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f0f] to-[#0f0a10]">
+              {children}
+            </main>
+          </SidebarProvider>
+        </ChatboxProvider>
       </body>
     </html>
   );

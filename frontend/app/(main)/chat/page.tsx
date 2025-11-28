@@ -3,68 +3,22 @@
 import { useState, useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import { ArrowUp, Loader2 } from "lucide-react";
-import axios from "axios";
-
-type Message = {
-  id: string;
-  sender: "user" | "ai";
-  text: string;
-};
+import { useChatbox } from "@/context/contextChatbox";
+import ReactMarkdown from "react-markdown";
 
 function Chat() {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { messages, isLoading, sendMessage } = useChatbox();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) {
-      return;
-    }
-    const currentInput = input;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      sender: "user",
-      text: currentInput,
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-
-    // API Call
-    try {
-      setIsLoading(true);
-      const aiRes = await axios.post("/api/chat", { query: currentInput });
-      const aiMessage: Message = {
-        id: Date.now().toString(),
-        sender: "ai",
-        text: aiRes.data,
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (err) {
-      console.error("API Error: ", err);
-      const errorMessage: Message = {
-        id: Date.now().toString(),
-        sender: "ai",
-        text: "Sorry, I encountered an error. Please try again.",
-      };
-
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && e.ctrlKey) {
       e.preventDefault();
-      sendMessage();
+      sendMessage(input, () => setInput(""));
     }
   };
 
@@ -78,8 +32,10 @@ function Chat() {
           {messages.length == 0 ? (
             <div className="h-full flex items-center justify-center text-white/70 text-center">
               <div>
-                <p className="text-lg mb-2">Welcome!</p>
-                <p className="text-sm">Ask me anything about your documents</p>
+                <p className="text-lg mb-2">Welcome to RAG Chat!</p>
+                <p className="text-sm">
+                  Ask me anything about your documents...
+                </p>
               </div>
             </div>
           ) : (
@@ -98,7 +54,38 @@ function Chat() {
                         : "text-white "
                     }`}
                   >
-                    <p className="whitespace-pre-wrap break-word">{m.text}</p>
+                    {m.sender === "ai" ? (
+                      <ReactMarkdown
+                        components={{
+                          p: ({ children }) => (
+                            <p className="mb-2 last:mb-0">{children}</p>
+                          ),
+                          strong: ({ children }) => (
+                            <strong className="font-bold">{children}</strong>
+                          ),
+                          em: ({ children }) => (
+                            <em className="italic">{children}</em>
+                          ),
+                          ul: ({ children }) => (
+                            <ul className="list-disc ml-4 mb-2">{children}</ul>
+                          ),
+                          ol: ({ children }) => (
+                            <ol className="list-decimal ml-4 mb-2">
+                              {children}
+                            </ol>
+                          ),
+                          li: ({ children }) => (
+                            <li className="mb-1">{children}</li>
+                          ),
+                        }}
+                      >
+                        {m.text}
+                      </ReactMarkdown>
+                    ) : (
+                      <p className="whitespace-pre-wrap break-words">
+                        {m.text}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -134,7 +121,7 @@ function Chat() {
           />
 
           <button
-            onClick={sendMessage}
+            onClick={() => sendMessage(input, () => setInput(""))}
             disabled={isLoading}
             className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center bg-gray-800 hover:bg-gray-700 peer-focus:bg-white/80 transition-all text-white peer-focus:text-black"
           >
