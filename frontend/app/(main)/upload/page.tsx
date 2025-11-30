@@ -1,12 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { CloudUpload, FileText } from "lucide-react";
+import axios from "axios";
+import {
+  CloudUpload,
+  FileText,
+  Check,
+  X as XIcon,
+  Loader2,
+} from "lucide-react";
 import Header from "@/components/Header";
+
+interface QueueItem {
+  id: number;
+  fileName: string;
+  status: "processing" | "success" | "error";
+  timestamp: string;
+  data?: {
+    document_key?: string;
+    category?: string;
+    error?: string;
+  };
+}
 
 export default function Upload() {
   const [isDragging, setIsDragging] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
+  const [processingQueue, setProcessingQueue] = useState<QueueItem[]>([]);
+  const [queueIdCounter, setQueueIdCounter] = useState(0);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -21,13 +41,95 @@ export default function Upload() {
     e.preventDefault();
     setIsDragging(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
-    setFiles((prev) => [...prev, ...droppedFiles]);
+    droppedFiles.forEach((file) => uploadFile(file));
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
-      setFiles((prev) => [...prev, ...selectedFiles]);
+      selectedFiles.forEach((file) => uploadFile(file));
+    }
+  };
+
+  const addToQueue = (file: File): number => {
+    const queueId = queueIdCounter + 1;
+    setQueueIdCounter(queueId);
+
+    const queueItem: QueueItem = {
+      id: queueId,
+      fileName: file.name,
+      status: "processing",
+      timestamp: new Date().toLocaleTimeString(),
+    };
+
+    setProcessingQueue((prev) => [...prev, queueItem]);
+    return queueId;
+  };
+
+  const updateQueueItem = (
+    queueId: number,
+    status: "processing" | "success" | "error",
+    data?: any
+  ) => {
+    setProcessingQueue((prev) =>
+      prev.map((item) =>
+        item.id === queueId ? { ...item, status, data } : item
+      )
+    );
+  };
+
+  const removeFromQueue = (queueId: number) => {
+    setTimeout(() => {
+      setProcessingQueue((prev) => prev.filter((item) => item.id !== queueId));
+    }, 5000); // Remove after 5 seconds
+  };
+
+  const uploadFile = async (file: File) => {
+    const queueId = addToQueue(file);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await axios.post("/api/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      updateQueueItem(queueId, "success", res.data);
+      removeFromQueue(queueId);
+    } catch (err: any) {
+      console.error("API Error: ", err);
+      updateQueueItem(queueId, "error", {
+        error: err.response?.data?.detail || "Upload failed",
+      });
+      removeFromQueue(queueId);
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "processing":
+        return <Loader2 className="w-5 h-5 animate-spin text-blue-400" />;
+      case "success":
+        return <Check className="w-5 h-5 text-green-400" />;
+      case "error":
+        return <XIcon className="w-5 h-5 text-red-400" />;
+      default:
+        return null;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "processing":
+        return "border-blue-500/50 bg-blue-500/10";
+      case "success":
+        return "border-green-500/50 bg-green-500/10";
+      case "error":
+        return "border-red-500/50 bg-red-500/10";
+      default:
+        return "border-white/10 bg-white/5";
     }
   };
 
@@ -35,10 +137,10 @@ export default function Upload() {
     <section className="min-h-screen">
       <Header title="Upload Document" />
 
-      <div className="pt-32 pb-12 px-6 max-w-[90vw] mx-auto">
+      <div className="pt-40 pb-12 px-6 max-w-[90vw] mx-auto grid md:grid-cols-2 gap-6">
+        {/* Left Column: Upload Area */}
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-
-          {/* Header Section */}
+          {/* Title Section */}
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-purple-500/20 rounded-lg">
               <CloudUpload className="w-5 h-5 text-purple-400" />
@@ -53,96 +155,132 @@ export default function Upload() {
             </div>
           </div>
 
-          {/* File Drop Section */}
-          <div className="w-full grid grid-cols-2 gap-2">
-            {/* Drop Area */}
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`relative border-2 border-dashed rounded-2xl p-12 transition-all duration-300 ${
-                isDragging
-                  ? "border-purple-500 bg-purple-500/10 scale-[1.02]"
-                  : "border-white/20 bg-white/5 hover:border-white/30 hover:bg-white/10"
-              }`}
-            >
-              <div className="flex flex-col items-center justify-center gap-4 text-center">
-                <div
-                  className={`p-6 rounded-full transition-all duration-300 ${
-                    isDragging ? "bg-purple-500/20 scale-110" : "bg-white/10"
+          {/* Drop Area */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`relative border-2 border-dashed rounded-2xl p-12 transition-all duration-300 ${
+              isDragging
+                ? "border-purple-500 bg-purple-500/10 scale-[1.02]"
+                : "border-white/20 bg-white/5 hover:border-white/30 hover:bg-white/10"
+            }`}
+          >
+            <div className="relative flex flex-col items-center justify-center gap-4 text-center">
+              <div
+                className={`p-6 rounded-full transition-all duration-300 ${
+                  isDragging ? "bg-purple-500/20 scale-110" : "bg-white/10"
+                }`}
+              >
+                <CloudUpload
+                  className={`w-12 h-12 transition-colors duration-300 ${
+                    isDragging ? "text-purple-400" : "text-gray-400"
                   }`}
-                >
-                  <CloudUpload
-                    className={`w-12 h-12 transition-colors duration-300 ${
-                      isDragging ? "text-purple-400" : "text-gray-400"
-                    }`}
-                  />
-                </div>
-
-                <div>
-                  <p className="text-lg font-semibold text-white mb-2">
-                    Drop your files here
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    or click to browse from your device
-                  </p>
-                </div>
-
-                <input
-                  type="file"
-                  onChange={handleFileSelect}
-                  multiple
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
+              </div>
 
-                <div className="flex gap-2 text-xs text-gray-500">
-                  <span>Supported: PDF, JPG, PNG, WEBP</span>
-                </div>
+              <div>
+                <p className="text-lg font-semibold text-white mb-2">
+                  Drop your files here
+                </p>
+                <p className="text-sm text-gray-400">
+                  or click to browse from your device
+                </p>
+              </div>
+
+              <input
+                type="file"
+                multiple
+                onChange={handleFileSelect}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+
+              <div className="flex gap-2 text-xs text-gray-500">
+                <span>Supported: PDF, JPG, PNG, WEBP</span>
               </div>
             </div>
-
-            {/* Uploaded File List */}
-            <div>
-              {files.length > 0 && (
-                <div className="mt-6 space-y-2">
-                  <h3 className="text-sm font-medium text-gray-300 mb-3">
-                    Uploaded Files ({files.length})
-                  </h3>
-
-                  {files.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg group hover:bg-white/10 transition-all duration-200"
-                    >
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className="p-2 bg-purple-500/20 rounded">
-                          <FileText className="w-4 h-4 text-purple-400" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-300 truncate">
-                            {file.name}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {(file.size / 1024).toFixed(2)} KB
-                          </p>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() =>
-                          setFiles(files.filter((_, i) => i !== index))
-                        }
-                        className="text-gray-400 hover:text-red-400 transition-colors ml-2"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
+        </div>
 
+        {/* Right Column: Processing Queue */}
+        <div>
+          {processingQueue.length > 0 && (
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-purple-400" />
+                  Processing Queue
+                </h3>
+                <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-sm font-semibold">
+                  {processingQueue.length}
+                </span>
+              </div>
+
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+                {processingQueue.map((item, i) => (
+                  <div
+                    key={i}
+                    className={`p-4 rounded-xl border transition-all duration-300 ${getStatusColor(
+                      item.status
+                    )}`}
+                  >
+                    {/* Status Header */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(item.status)}
+                        <span className="text-sm font-medium text-white capitalize">
+                          {item.status}
+                        </span>
+                      </div>
+                      {item.data?.category && (
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-semibold ${
+                            item.data.category === "purchase"
+                              ? "bg-blue-500/20 text-blue-400"
+                              : "bg-green-500/20 text-green-400"
+                          }`}
+                        >
+                          {item.data.category}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* File Info */}
+                    <div className="flex items-center gap-3 mb-2">
+                      <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <span className="text-sm text-gray-300 truncate">
+                        {item.fileName}
+                      </span>
+                    </div>
+
+                    {/* Document ID */}
+                    {item.data?.document_key && (
+                      <div className="mt-2 p-2 bg-white/5 rounded border border-white/10">
+                        <span className="text-xs text-gray-400">
+                          Document ID:
+                        </span>
+                        <span className="text-xs text-white font-mono">
+                          {item.data.document_key}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Error Message */}
+                    {item.status === "error" && item.data?.error && (
+                      <div className="mt-2 text-xs text-red-400">
+                        {item.data.error}
+                      </div>
+                    )}
+
+                    {/* Timestamp */}
+                    <div className="mt-2 text-xs text-gray-500">
+                      {item.timestamp}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
