@@ -3,14 +3,20 @@
 import Link from "next/link";
 import { useSidebar } from "@/context/contextSidebar";
 import { usePathname } from "next/navigation";
-import { MessageCircle , UploadCloud, Image, ChevronsLeft, Menu } from "lucide-react";
+import {
+  MessageCircle,
+  UploadCloud,
+  Image,
+  ChevronsLeft,
+  Menu,
+} from "lucide-react";
 
 function Sidebar() {
   const { isOpen, toggleSidebar } = useSidebar();
   const pathname = usePathname();
 
   const items = [
-    { title: "Chat", url: "/chat", icon: MessageCircle  },
+    { title: "Chat", url: "/chat", icon: MessageCircle },
     { title: "Upload", url: "/upload", icon: UploadCloud },
     { title: "Gallery", url: "/gallery", icon: Image },
   ];
@@ -24,8 +30,8 @@ function Sidebar() {
         {/* title */}
         <div className="pt-6 px-6 pb-1 flex justify-between items-center ">
           <div>
-            <h1 className="text-white text-4xl font-bold tracking-tight">
-              OCR
+            <h1 className="text-white text-4xl font-bold tracking-tight font-poppins">
+              AIReceipt
             </h1>
             <p className="text-gray-300 text-xs mt-1">Document Scanner</p>
           </div>

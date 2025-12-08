@@ -81,7 +81,7 @@ export default function Upload() {
   const removeFromQueue = (queueId: number) => {
     setTimeout(() => {
       setProcessingQueue((prev) => prev.filter((item) => item.id !== queueId));
-    }, 5000); // Remove after 5 seconds
+    }, 20000);
   };
 
   const uploadFile = async (file: File) => {
@@ -101,7 +101,7 @@ export default function Upload() {
     } catch (err: any) {
       console.error("API Error: ", err);
       updateQueueItem(queueId, "error", {
-        error: err.response?.data?.detail || "Upload failed",
+        error: "Upload failed",
       });
       removeFromQueue(queueId);
     }
@@ -135,7 +135,7 @@ export default function Upload() {
 
   return (
     <section className="min-h-screen">
-      <Header title="Upload Document" />
+      <Header title="Upload Document" isGallery={false} />
 
       <div className="pt-40 pb-12 px-6 max-w-[90vw] mx-auto grid md:grid-cols-2 gap-6">
         {/* Left Column: Upload Area */}

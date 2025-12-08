@@ -120,9 +120,9 @@ function Gallery() {
 
   return (
     <section>
-      <Header title="Gallery" />
+      <Header title="Gallery" isGallery />
 
-      <div className="pt-32 px-4 pb-6">
+      <div className="pt-36 px-4 pb-6">
         {/* Filter part */}
         <div className="flex bg-white/10 border border-white/20 rounded-xl w-full justify-between items-center mb-4 p-4 ">
           <form className="flex gap-8 items-center" onSubmit={handleSearch}>
@@ -249,6 +249,16 @@ function Gallery() {
                       <span className="px-3 py-1 rounded-full bg-blue-600/90 backdrop-blur-sm border border-white/20 text-white text-xs font-medium capitalize">
                         {recp.document_type}
                       </span>
+                    </div>
+
+                    <div className="absolute bottom-2 left-2 group-hover:scale-105 transform transition-transform duration-300 ease-in-out">
+                      <button
+                        onClick={handleDownloadCSV}
+                        disabled={isDownloading}
+                        className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transform transition-all duration-300 ease-in bg-green-500 group-hover:scale-105 hover:bg-green-500/80 cursor-pointer"
+                      >
+                        <Download className="w-6 h-6 text-white" />
+                      </button>
                     </div>
                   </div>
                 ))
