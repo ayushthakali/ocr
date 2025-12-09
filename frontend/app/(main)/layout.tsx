@@ -2,7 +2,6 @@
 
 import { useSidebar } from "@/context/contextSidebar";
 import Sidebar from "@/components/Sidebar";
-import { SidebarProvider } from "@/context/contextSidebar";
 import { ChatboxProvider } from "@/context/contextChatbox";
 export default function MainLayout({
   children,
@@ -14,7 +13,6 @@ export default function MainLayout({
   return (
     <>
       <ChatboxProvider>
-        <SidebarProvider>
           <Sidebar />
           <main
             className={`transition-all duration-300 ${
@@ -23,7 +21,6 @@ export default function MainLayout({
           >
             {children}
           </main>
-        </SidebarProvider>
       </ChatboxProvider>
     </>
   );

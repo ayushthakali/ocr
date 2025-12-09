@@ -5,6 +5,8 @@ import axios from "axios";
 import { Mail, Lock, User, UserPlus, Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/lib/getError";
+import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,6 +19,7 @@ export default function AuthPage() {
     confirmPassword: "",
   });
 
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,11 +33,6 @@ export default function AuthPage() {
       return;
     }
 
-    if (formData.password.length < 8) {
-      toast.error("Password must have more than 8 characters.");
-      setIsLoading(false);
-      return;
-    }
     try {
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/signup";
       const response = await axios.post(endpoint, formData, {
@@ -43,11 +41,20 @@ export default function AuthPage() {
       console.log(response.data.message);
       toast.success(response.data.message);
       setTimeout(() => {
-        toggleMode();
+        if (isLogin) {
+          if (response.data.firstTime) {
+            router.push("/set-company");
+          } else {
+            router.push("/chat");
+          }
+        } else {
+          toggleMode();
+        }
       }, 1000);
-    } catch (error) {
-      console.error("Auth error:", error);
-      toast.error("Something went wrong. Please try again.");
+    } catch (err) {
+      const message = getErrorMessage(err);
+      toast.error(message);
+      console.error(message, err);
     } finally {
       setIsLoading(false);
     }

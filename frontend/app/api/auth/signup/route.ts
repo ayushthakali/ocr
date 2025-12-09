@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (err) {
-    console.error(err);
+    console.error("Error in api call", err);
 
     // Return server error
     return NextResponse.json(

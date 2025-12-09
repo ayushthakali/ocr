@@ -1,16 +1,18 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ICompany extends Document {
-  name: string;
-  owner: mongoose.Types.ObjectId; // Reference to User
+  company_name: string;
+  pan_no: string;
+  user_id: mongoose.Types.ObjectId; // Reference to User
   createdAt: Date;
   updatedAt: Date;
 }
 
 const companySchema = new Schema<ICompany>(
   {
-    name: { type: String, required: true, trim: true },
-    owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    company_name: { type: String, required: true, trim: true },
+    pan_no: { type: String, required: true, trim: true },
+    user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );
