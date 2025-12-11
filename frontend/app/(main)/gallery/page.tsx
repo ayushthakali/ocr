@@ -124,7 +124,7 @@ function Gallery() {
 
       <div className="pt-36 px-4 pb-6">
         {/* Filter part */}
-        <div className="flex bg-white/10 border border-white/20 rounded-xl w-full justify-between items-center mb-4 p-4 ">
+        <div className="flex bg-white/5 border border-white/10 rounded-xl w-full justify-between items-center mb-4 p-4 ">
           <form className="flex gap-8 items-center" onSubmit={handleSearch}>
             <div>
               <label className="text-lg text-white/90 font-medium">From:</label>
@@ -246,7 +246,7 @@ function Gallery() {
                       />
                     </figure>
                     <div className="absolute top-2 right-2 group-hover:scale-105 transform transition-transform duration-300 ease-in-out">
-                      <span className="px-3 py-1 rounded-full bg-blue-600/90 backdrop-blur-sm border border-white/20 text-white text-xs font-medium capitalize">
+                      <span className="px-3 py-1 rounded-full bg-blue-600/90 backdrop-blur-sm border border-white/20 text-white text-2xs lg:text-xs font-medium capitalize">
                         {recp.document_type}
                       </span>
                     </div>

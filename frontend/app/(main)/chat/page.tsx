@@ -24,7 +24,7 @@ function Chat() {
 
   return (
     <section className="h-screen">
-      <Header title="RAG Chat - Chat with your documents" />
+      <Header title="RAG Chat - Chat with your documents" isGallery={false} />
 
       <div className="pt-36 pb-4 px-4 max-h-screen h-full w-full flex flex-col items-center justify-start gap-4">
         {/* Chat messages area */}

@@ -15,18 +15,18 @@ function SetCompany() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       setIsLoading(true);
-      const response = await axios.post("/api/set-company", formData, {
+      const response = await axios.post("/api/company/set-company", formData, {
         headers: { "Content-Type": "application/json" },
       });
       console.log(response.data.message);
       toast.success(response.data.message);
       setTimeout(() => {
         router.push("/chat");
-      }, 1000);
+      }, 800);
     } catch (err) {
       const message = getErrorMessage(err);
       toast.error(message);
@@ -35,6 +35,7 @@ function SetCompany() {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       {/* Card */}
@@ -80,7 +81,7 @@ function SetCompany() {
               <div className="relative">
                 <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  type="text"
+                  type="number"
                   value={formData.pan_no}
                   onChange={(e) =>
                     setFormData({ ...formData, pan_no: e.target.value })
