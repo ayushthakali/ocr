@@ -4,16 +4,20 @@ import { useState, useEffect } from "react";
 import { getErrorMessage } from "@/lib/getError";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { User, Mail, Loader2, Building, Briefcase, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-
-interface Company {
-  _id: string;
-  company_name: string;
-  pan_no: string;
-}
+import {
+  User,
+  Mail,
+  Loader2,
+  Building,
+  Briefcase,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { useCompany } from "@/context/contextCompany";
+import { DeleteDialog } from "@/components/DeleteDialog";
 
 function Settings() {
+  const { companies, isLoading, addCompany, deleteCompany } = useCompany();
   const [userData, setUserData] = useState({
     username: "",
     email: "",
@@ -22,48 +26,30 @@ function Settings() {
     company_name: "",
     pan_no: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("profile");
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
+
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
     { id: "companies", label: "Companies", icon: Building },
   ];
 
-  const [loading, setLoading] = useState(true);
-  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
-  const [activeTab, setActiveTab] = useState("profile");
-  const [isLoading, setIsLoading] = useState(false);
-  const [companies, setCompanies] = useState<Company[]>([]);
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      setIsLoading(true);
-      const response = await axios.post("/api/company/set-company", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
-      toast.success(response.data.message);
+    setIsButtonLoading(true);
+    const success = await addCompany(formData);
+    setIsButtonLoading(false);
+    if (success) {
       setFormData({ company_name: "", pan_no: "" });
-      fetchCompanies();
-    } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      console.error(message, err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const fetchCompanies = async () => {
-    try {
-      setIsLoadingCompanies(true);
-      const response = await axios.get("/api/company/get-companies");
-      setCompanies(response.data.companies || []);
-    } catch (err) {
-      console.error("Failed to fetch companies:", err);
-      const message = getErrorMessage(err);
-      toast.error(message);
-    } finally {
-      setIsLoadingCompanies(false);
-    }
+  const handleDeleteCompany = async (
+    companyId: string,
+    company_name: string
+  ) => {
+    await deleteCompany(companyId, company_name);
   };
 
   useEffect(() => {
@@ -86,7 +72,6 @@ function Settings() {
     };
 
     fetchUserDetails();
-    fetchCompanies();
   }, []);
 
   return (
@@ -95,7 +80,6 @@ function Settings() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-1">Settings</h1>
-          <p className="text-gray-400 ">Manage your account and preferences</p>
         </div>
 
         {/* Tabs */}
@@ -121,64 +105,55 @@ function Settings() {
 
         {/* Profile Tab */}
         {activeTab === "profile" && (
-          <div className="space-y-6">
-            {/* Personal Information Card */}
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3 mb-2 ">
-                  <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg">
-                    <User className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">
-                      Personal Information
-                    </h2>
-                    <p className="text-sm text-gray-400">
-                      Your personal details
-                    </p>
-                  </div>
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg">
+                <User className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-white">
+                  Personal Information
+                </h2>
+                <p className="text-sm text-gray-400">Your personal details</p>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                  {loading ? (
+                    <div className="w-full h-11 bg-white/10 rounded-xl animate-pulse"></div>
+                  ) : (
+                    <input
+                      type="text"
+                      readOnly
+                      value={userData.username}
+                      className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white cursor-not-allowed"
+                    />
+                  )}
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Username */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                    {loading ? (
-                      <div className="w-full h-11 bg-white/20 rounded-xl animate-pulse"></div>
-                    ) : (
-                      <input
-                        type="text"
-                        readOnly
-                        value={userData.username}
-                        className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white cursor-not-allowed"
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                    {loading ? (
-                      <div className="w-full h-11 bg-white/5 rounded-xl animate-pulse"></div>
-                    ) : (
-                      <input
-                        type="email"
-                        readOnly
-                        value={userData.email}
-                        className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white cursor-not-allowed"
-                      />
-                    )}
-                  </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                  {loading ? (
+                    <div className="w-full h-11 bg-white/10 rounded-xl animate-pulse"></div>
+                  ) : (
+                    <input
+                      type="email"
+                      readOnly
+                      value={userData.email}
+                      className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white cursor-not-allowed"
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -188,7 +163,7 @@ function Settings() {
         {/* Companies Tab */}
         {activeTab === "companies" && (
           <div className="space-y-6">
-            {/* Add New Company Card */}
+            {/* Add New Company */}
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg">
@@ -206,10 +181,9 @@ function Settings() {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
-                  {/* Company Name */}
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-2">
-                      Company Name *
+                      Company Name
                     </label>
                     <div className="relative">
                       <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -229,34 +203,32 @@ function Settings() {
                     </div>
                   </div>
 
-                  {/* PAN Number */}
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-2">
-                      PAN Number *
+                      PAN Number
                     </label>
                     <div className="relative">
                       <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                       <input
-                        type="text"
+                        type="number"
                         required
                         value={formData.pan_no}
                         onChange={(e) =>
                           setFormData({ ...formData, pan_no: e.target.value })
                         }
-                        placeholder="ABCDE1234F"
+                        placeholder="123456789"
                         className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isButtonLoading}
                   className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {isLoading ? (
+                  {isButtonLoading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
                       Adding...
@@ -277,12 +249,12 @@ function Settings() {
                 Your Companies ({companies.length})
               </h2>
 
-              {isLoadingCompanies ? (
+              {isLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className="h-18 bg-white/5 rounded-xl animate-pulse"
+                      className="h-20 bg-white/5 rounded-xl animate-pulse"
                     ></div>
                   ))}
                 </div>
@@ -291,7 +263,7 @@ function Settings() {
                   {companies.map((company) => (
                     <div
                       key={company._id}
-                      className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all duration-200 "
+                      className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all duration-200"
                     >
                       <div className="flex items-center gap-4 flex-1 min-w-0">
                         <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
@@ -301,13 +273,18 @@ function Settings() {
                           <h3 className="text-white font-semibold truncate">
                             {company.company_name}
                           </h3>
-                          <div className="flex items-center gap-3 mt-1">
-                            <p className="text-sm text-gray-400">
-                              PAN: {company.pan_no}
-                            </p>
-                          </div>
+                          <p className="text-sm text-gray-400">
+                            PAN: {company.pan_no}
+                          </p>
                         </div>
                       </div>
+                      <DeleteDialog
+                        title="Confirm Deletion?"
+                        description="Are you sure you want to delete this company?"
+                        handleClick={() =>
+                          handleDeleteCompany(company._id, company.company_name)
+                        }
+                      />
                     </div>
                   ))}
                 </div>

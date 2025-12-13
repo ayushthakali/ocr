@@ -4,6 +4,7 @@ import axios from "axios";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+      
 
     const res = await axios.post("http://localhost:8000/chat", body, {
       headers: {

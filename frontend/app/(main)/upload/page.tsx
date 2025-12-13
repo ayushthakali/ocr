@@ -204,20 +204,26 @@ export default function Upload() {
 
         {/* Right Column: Processing Queue */}
         <div>
-          {processingQueue.length > 0 && (
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-purple-400" />
-                  Processing Queue
-                </h3>
-                <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-sm font-semibold">
-                  {processingQueue.length}
-                </span>
-              </div>
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <FileText className="w-5 h-5 text-purple-400" />
+                Processing Queue
+              </h3>
+              <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-sm font-semibold">
+                {processingQueue.length}
+              </span>
+            </div>
 
-              <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-                {processingQueue.map((item, i) => (
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+              {processingQueue.length === 0 ? (
+                <div className="w-full text-center my-4">
+                  <p className="text-sm font-medium text-white/80">
+                    No files in the queue.
+                  </p>
+                </div>
+              ) : (
+                processingQueue.map((item, i) => (
                   <div
                     key={i}
                     className={`p-4 rounded-xl border transition-all duration-300 ${getStatusColor(
@@ -277,10 +283,10 @@ export default function Upload() {
                       {item.timestamp}
                     </div>
                   </div>
-                ))}
-              </div>
+                ))
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </section>

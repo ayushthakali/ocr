@@ -30,23 +30,22 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {" "}
         <SidebarProvider>
-          <main className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f0f] to-[#0f0a10]">
-            {children}
-            <ToastContainer
-              position="top-right"
-              autoClose={3000} // auto-close after 3 seconds
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
-            />
-          </main>
+            <main className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f0f] to-[#0f0a10]">
+              {children}
+              <ToastContainer
+                position="top-right"
+                autoClose={1000} // auto-close after 3 seconds
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+            </main>
         </SidebarProvider>
       </body>
     </html>

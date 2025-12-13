@@ -3,10 +3,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { Mail, Lock, User, UserPlus, Eye, EyeOff } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-toastify";
 import { getErrorMessage } from "@/lib/getError";
 import { useRouter } from "next/navigation";
+// import { FcGoogle } from "react-icons/fc";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -40,17 +40,16 @@ export default function AuthPage() {
       });
       console.log(response.data.message);
       toast.success(response.data.message);
-      setTimeout(() => {
-        if (isLogin) {
-          if (response.data.firstTime) {
-            router.push("/set-company");
-          } else {
-            router.push("/chat");
-          }
+
+      if (isLogin) {
+        if (response.data.firstTime) {
+          router.push("/set-company");
         } else {
-          toggleMode();
+          router.push("/chat");
         }
-      }, 1000);
+      } else {
+        toggleMode();
+      }
     } catch (err) {
       const message = getErrorMessage(err);
       toast.error(message);
@@ -60,10 +59,10 @@ export default function AuthPage() {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    // Redirect to Google OAuth endpoint
-    window.location.href = "/api/auth/google";
-  };
+  // const handleGoogleSignIn = () => {
+  //   // Redirect to Google OAuth endpoint
+  //   window.location.href = "/api/auth/google";
+  // };
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
@@ -142,28 +141,6 @@ export default function AuthPage() {
                 />
               </div>
             </div>
-
-            {/* Company Name Field (Signup only)
-            {!isLogin && (
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Company Name
-                </label>
-                <div className="relative">
-                  <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={formData.companyName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, companyName: e.target.value })
-                    }
-                    placeholder="Brandbuilder"
-                    required={!isLogin}
-                    className="w-full pl-11 pr-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                  />
-                </div>
-              </div>
-            )} */}
 
             {/* Password Field */}
             <div>
@@ -254,21 +231,21 @@ export default function AuthPage() {
           </form>
 
           {/* Divider */}
-          <div className="flex items-center gap-4 my-4">
+          {/* <div className="flex items-center gap-4 my-4">
             <div className="flex-1 h-px bg-white/20"></div>
             <span className="text-sm text-gray-400">or</span>
             <div className="flex-1 h-px bg-white/20"></div>
-          </div>
+          </div> */}
 
           {/* Google Sign In */}
-          <button
+          {/* <button
             onClick={handleGoogleSignIn}
             type="button"
             className="w-full flex items-center justify-center gap-3 px-6 py-2 mb-6 bg-white hover:bg-gray-100 text-gray-900 rounded-xl font-semibold transition-all duration-200 hover:scale-[1.02] shadow-lg"
           >
             <FcGoogle className="w-5 h-5" />
             Continue with Google
-          </button>
+          </button> */}
 
           {/* Toggle Mode */}
           <div className="mt-6 text-center">

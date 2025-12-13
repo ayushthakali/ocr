@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Loader2, UploadCloud, Download, Calendar, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 interface Receipt {
   doc_id: string;
@@ -98,18 +99,13 @@ function Gallery() {
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (new Date(formData.from) > new Date(formData.to)) {
-      alert("From date should be earlier than To date!");
+      toast.error("From date should be earlier than To date!");
       return;
     }
 
     try {
       setIsLoading(true);
-      const response = await axios.get(`/api/search-document`, {
-        params: {
-          from: formData.from,
-          to: formData.to,
-        },
-      });
+      const response = await axios.post(`/api/search-document`, formData);
       setReceipts(response.data);
     } catch (err) {
       console.error("Failed to fetch filtered docs.", err);
@@ -124,10 +120,10 @@ function Gallery() {
 
       <div className="pt-36 px-4 pb-6">
         {/* Filter part */}
-        <div className="flex bg-white/5 border border-white/10 rounded-xl w-full justify-between items-center mb-4 p-4 ">
+        <div className="flex flex-wrap bg-white/10 border border-white/20 rounded-xl w-full justify-between items-center mb-4 p-2.5 gap-4">
           <form className="flex gap-8 items-center" onSubmit={handleSearch}>
             <div>
-              <label className="text-lg text-white/90 font-medium">From:</label>
+              <label className="text-lg text-white/90 ">From:</label>
               <input
                 type="date"
                 onChange={(e) =>
@@ -138,14 +134,14 @@ function Gallery() {
               />
             </div>
             <div>
-              <label className="text-lg text-white/90 font-medium">To:</label>
+              <label className="text-lg text-white/90">To:</label>
               <input
                 type="date"
                 onChange={(e) =>
                   setFormData({ ...formData, to: e.target.value })
                 }
                 value={formData.to}
-                className="text-white/80 px-2 py-1 bg-white/10 rounded-lg border border-white/20 ml-2"
+                className="text-white/80 px-2 py-1 bg-white/10 rounded-lg border border-white/20 ml-2 "
               />
             </div>
             <div className="space-x-4">
@@ -167,7 +163,7 @@ function Gallery() {
             </div>
           </form>
           <div>
-            <label className="text-lg text-white/90 font-medium">Type:</label>
+            <label className="text-lg text-white/90 ">Type:</label>
 
             <select
               id="docTypeFilter"
@@ -217,7 +213,7 @@ function Gallery() {
         ) : (
           <div>
             <h2 className="text-gray-200 text-lg font-bold mb-2 pl-2">
-              Total Document(s): {receipts.length}
+              Total Document(s): {filteredDocs.length}
             </h2>
 
             {/* Main gallery grid */}

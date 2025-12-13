@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-export async function GET(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-
-    const from = searchParams.get("from");
-    const to = searchParams.get("to");
-
+    const { from, to } = await req.json();
     const queryString = new URLSearchParams();
 
-    if (from) queryString.append("from", from);
-    if (to) queryString.append("to", to);
+    if (from) queryString.append("start_date", from);
+    if (to) queryString.append("end_date", to);
 
     const response = await axios.get(
       `http://localhost:8000/search-documents?${queryString.toString()}`

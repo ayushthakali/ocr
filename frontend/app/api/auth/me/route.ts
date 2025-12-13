@@ -12,9 +12,8 @@ export async function GET() {
     const token = cookieStore.get("authToken")?.value;
 
     if (!token) {
-      const tokenExpired = true;
       return NextResponse.json(
-        { error: "Not Authenticated. Token expired or invalid.", tokenExpired },
+        { error: "Not Authenticated. Token expired or invalid." },
         { status: 401 }
       );
     }

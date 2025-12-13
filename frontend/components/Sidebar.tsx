@@ -11,74 +11,36 @@ import {
   Menu,
   Building2,
   ChevronDown,
-  LoaderCircle,
   Settings,
-  LogOut,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { getErrorMessage } from "@/lib/getError";
-
-interface Company {
-  _id: string;
-  company_name: string;
-  pan_no: string;
-}
+import { useCompany } from "@/context/contextCompany";
+import { LogoutDialog } from "./LogoutDialog";
 
 function Sidebar() {
   const { isOpen, toggleSidebar } = useSidebar();
   const pathname = usePathname();
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [selectedCompany, setSelectedCompany] = useState<string>("");
-  const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+  const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] =
+    useState<boolean>(false);
   const router = useRouter();
   const items = [
     { title: "Chat", url: "/chat", icon: MessageCircle },
     { title: "Upload", url: "/upload", icon: UploadCloud },
     { title: "Gallery", url: "/gallery", icon: Image },
   ];
-
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get("/api/company/get-companies");
-        console.log(response.data);
-        setCompanies(response.data.companies || []);
-        setSelectedCompany(response.data.companies[0].company_name);
-      } catch (err: any) {
-        if (err.response.data.tokenExpired) {
-          toast.error("Session expired. Please log in again.");
-          router.push("/auth");
-          return;
-        }
-        console.error("Failed to fetch companies:", err);
-        const message = getErrorMessage(err);
-        toast.error(message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchCompanies();
-  }, [router]);
+  const { companies, selectedCompany, isLoading, setSelectedCompany } =
+    useCompany();
 
   const handleLogout = async () => {
-    window.confirm("Are you sure you want to log out?");
     try {
-      setButtonLoading(true);
       await axios.post(`/api/auth/logout`, { withCredentials: true });
       toast.success("Logged out successfully!");
-      setTimeout(() => {
-        router.push("/auth");
-      }, 500);
+      router.push("/");
     } catch {
       toast.error("Logout failed!");
-    } finally {
-      setButtonLoading(false);
     }
   };
 
@@ -174,7 +136,7 @@ function Sidebar() {
         )}
 
         {/* Nav Items */}
-        <nav className="text-white flex flex-col space-y-2 py-6 px-2 ">
+        <nav className="text-white flex flex-col space-y-2 px-2 ">
           {items.map((item, index) => {
             const isActive = pathname === item.url;
             return (
@@ -244,23 +206,7 @@ function Sidebar() {
             <h2 className="text-sm font-medium ">Settings</h2>
           </Link>
 
-          {/* Logout */}
-          <button
-            className={`relative flex w-full cursor-pointer flex-row-reverse justify-between items-center gap-2 group hover:text-white py-2 px-4 rounded transition-all duration-300 ease-in ${
-              isOpen ? "hover:bg-white/20 " : ""
-            }`}
-            onClick={handleLogout}
-            disabled={buttonLoading}
-          >
-            <div className="flex-shrink-0 flex w-10 h-10 rounded-full flex items-center justify-center transform transition-all duration-300 ease-in bg-gray-800 group-hover:scale-105 group-hover:bg-gray-700">
-              {buttonLoading ? (
-                <LoaderCircle className="h-5 w-5 animate-spin" />
-              ) : (
-                <LogOut className="w-5 h-5 group-hover:rotate-5 transition-all duration-300 ease-in text-gray-300" />
-              )}
-            </div>
-            <h2 className="text-sm font-medium text-gray-300">Log out</h2>
-          </button>
+          <LogoutDialog handleClick={handleLogout} />
         </div>
       </div>
     </aside>

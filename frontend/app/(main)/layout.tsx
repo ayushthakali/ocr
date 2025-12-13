@@ -3,6 +3,8 @@
 import { useSidebar } from "@/context/contextSidebar";
 import Sidebar from "@/components/Sidebar";
 import { ChatboxProvider } from "@/context/contextChatbox";
+import { CompanyProvider } from "@/context/contextCompany";
+
 export default function MainLayout({
   children,
 }: Readonly<{
@@ -12,7 +14,8 @@ export default function MainLayout({
 
   return (
     <>
-      <ChatboxProvider>
+      <CompanyProvider>
+        <ChatboxProvider>
           <Sidebar />
           <main
             className={`transition-all duration-300 ${
@@ -21,7 +24,8 @@ export default function MainLayout({
           >
             {children}
           </main>
-      </ChatboxProvider>
+        </ChatboxProvider>
+      </CompanyProvider>
     </>
   );
 }

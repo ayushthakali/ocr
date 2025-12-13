@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, useState } from "react";
 import axios from "axios";
+import { useCompany } from "./contextCompany";
 
 type ChatboxContextType = {
   messages: Message[];
@@ -23,6 +24,7 @@ export function ChatboxProvider({
 }>) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { selectedCompany } = useCompany();
 
   const sendMessage = async (input: string, clearInput: () => void) => {
     if (!input.trim()) {
@@ -42,7 +44,10 @@ export function ChatboxProvider({
     // API Call
     try {
       setIsLoading(true);
-      const aiRes = await axios.post("/api/chat", { query: currentInput });
+      const aiRes = await axios.post("/api/chat", {
+        query: currentInput,
+        selectedCompany,
+      });
       const aiMessage: Message = {
         id: Date.now().toString(),
         sender: "ai",

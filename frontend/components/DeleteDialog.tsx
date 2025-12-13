@@ -23,20 +23,30 @@ export function DeleteDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="destructive" className="py-2 px-3">
+        <Button
+          variant="ghost"
+          className="p-2 hover:bg-red-500/10 rounded-lg text-gray-400 hover:text-red-400 transition-all cursor-pointer"
+        >
           <Trash2 className="w-5 h-5" />
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg text-white">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogDescription className=" text-white">
+            {description}
+          </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="flex justify-end gap-2">
+        <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button
+              variant="outline"
+              className="bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-gray-200 hover:text-white"
+            >
+              Cancel
+            </Button>
           </DialogClose>
           <Button variant="destructive" onClick={handleClick}>
             Delete
