@@ -7,6 +7,7 @@ import { Loader2, UploadCloud, Download, Calendar, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { useCompany } from "@/context/contextCompany";
 
 interface Receipt {
   doc_id: string;
@@ -31,6 +32,7 @@ function Gallery() {
     document_type: "",
   });
   const [filter, setFilter] = useState("all");
+  const { selectedCompany } = useCompany();
 
   // Initial images fetching
   useEffect(() => {
@@ -39,6 +41,7 @@ function Gallery() {
         const res = await axios.get("/api/gallery", {
           headers: {
             "Content-Type": "application/json",
+            "X-Active-Company": selectedCompany._id,
           },
         });
         setReceipts(res.data);
@@ -50,7 +53,7 @@ function Gallery() {
     };
 
     fetchImageUrl();
-  }, []);
+  }, [selectedCompany]);
 
   const filteredDocs =
     filter === "all"
@@ -67,7 +70,12 @@ function Gallery() {
     try {
       setIsDownloading(true);
       const response = await axios.get(
-        `/api/generate-csv/${selectedReceipt.doc_id}`
+        `/api/generate-csv/${selectedReceipt.doc_id}`,
+        {
+          headers: {
+            "X-Active-Company": selectedCompany._id,
+          },
+        }
       );
 
       // Extract CSV data
@@ -105,7 +113,12 @@ function Gallery() {
 
     try {
       setIsLoading(true);
-      const response = await axios.post(`/api/search-document`, formData);
+      const response = await axios.post("/api/search-document", formData, {
+        headers: {
+          "X-Active-Company": selectedCompany._id,
+          "Content-Type": "application/json",
+        },
+      });
       setReceipts(response.data);
     } catch (err) {
       console.error("Failed to fetch filtered docs.", err);

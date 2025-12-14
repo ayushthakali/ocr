@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     const company = await Company.create({
       company_name,
       pan_no,
-      user_id: decoded.id,
+      user_id: decoded.userId,
     });
 
     return NextResponse.json(

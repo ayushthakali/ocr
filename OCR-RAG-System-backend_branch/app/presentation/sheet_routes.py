@@ -14,7 +14,7 @@ firebase_service = FirebaseService()
 @router.get("/status")
 async def get_sheets_status(current_user: dict = Depends(get_current_user)):
     """Check if user has connected Google Sheets for their active company"""
-    user_id = current_user["uid"]
+    user_id = current_user["userId"]
     company_id = current_user["activeCompany"]
 
     # Get tokens from Firebase for this user + company

@@ -1,11 +1,24 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
+import { cookies } from "next/headers";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("authToken")?.value;
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "Not Authenticated. Token expired or invalid." },
+        { status: 401 }
+      );
+    }
+    const selectedCompany = request.headers.get("X-Active-Company") || "";
+
     const res = await axios.get("http://localhost:8000/search-documents", {
       headers: {
-        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "X-Active-Company": selectedCompany,
       },
     });
     return NextResponse.json(res.data);

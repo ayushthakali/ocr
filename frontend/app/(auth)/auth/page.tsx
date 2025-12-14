@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Mail, Lock, User, UserPlus, Eye, EyeOff } from "lucide-react";
 import { toast } from "react-toastify";
 import { getErrorMessage } from "@/lib/getError";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
 // import { FcGoogle } from "react-icons/fc";
 
 export default function AuthPage() {
@@ -18,9 +19,18 @@ export default function AuthPage() {
     password: "",
     confirmPassword: "",
   });
+  const mode = useSearchParams()?.get("mode");
 
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (mode === "signup") {
+      setIsLogin(false);
+    } else {
+      setIsLogin(true);
+    }
+  }, [mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

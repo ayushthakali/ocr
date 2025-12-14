@@ -43,15 +43,20 @@ export async function POST(req: Request) {
       );
     }
 
-    // Sign JWT
-    const userId = user._id.toString();
-    const token = jwt.sign({ id: userId }, process.env.JWT_SECRET!, {
-      expiresIn: "7d",
-    });
-
     //Check for companies
     const companies = await Company.find({ user_id: user._id });
     const firstTime = companies.length === 0;
+
+    // Payload
+    const payload = {
+      userId: user._id.toString(),
+      companies: companies.map((c) => c._id.toString()),
+    };
+
+    // Sign JWT
+    const token = jwt.sign(payload, process.env.JWT_SECRET!, {
+      expiresIn: "7d",
+    });
 
     // Set cookie
     const response = NextResponse.json({

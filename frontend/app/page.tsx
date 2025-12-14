@@ -104,7 +104,7 @@ function Home() {
               <Receipt className="w-6 h-6 text-white" />
             </div>
             <span className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent font-poppins">
-              AIReceipt
+              AI Receipt
             </span>
           </div>
 
@@ -116,7 +116,7 @@ function Home() {
               Sign In
             </Link>
             <Link
-              href="/auth"
+              href="/auth?mode=signup"
               className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-3xl font-medium hover:scale-105 transition-all"
             >
               Get Started Free
@@ -127,7 +127,7 @@ function Home() {
 
       {/* Hero Section */}
       <main className="container mx-auto px-6">
-        <div className="flex flex-col items-center text-center pt-20 pb-32 text-white">
+        <div className="flex flex-col items-center text-center py-20  text-white">
           <h1 className="text-6xl md:text-7xl font-bold mb-6 max-w-4xl">
             Transform receipts into
             <span className="bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
@@ -145,7 +145,7 @@ function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href="/auth"
+              href="/auth?mode=signup"
               className="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-semibold text-lg hover:scale-105 transition-all flex items-center justify-center gap-2"
             >
               Start Processing Free
@@ -160,28 +160,31 @@ function Home() {
           </div>
 
           {/* Demo Image Placeholder */}
-          <div className="mt-16 w-full max-w-5xl">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-blue-400 rounded-2xl blur-3xl opacity-20"></div>
-              <div className="relative bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
-                <div className="flex gap-2 mb-4">
+          {/* <div className="mt-16 w-full max-w-5xl">
+            <div className="relative"> */}
+          {/* <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-blue-400 rounded-2xl blur-3xl opacity-20">
+
+              </div> */}
+
+          {/* <div className="relative bg-white rounded-2xl shadow-2xl p-8 border border-gray-200"> */}
+          {/* <div className="flex gap-2 mb-4">
                   <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                   <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
                   <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                </div>
+                </div> */}
 
-                {/* Upload Section */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-gray-50">
+          {/* Upload Section */}
+          {/* <div className="grid md:grid-cols-2 gap-6"> */}
+          {/* <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-gray-50">
                     <Receipt className="w-12 h-12 text-gray-400 mb-3" />
                     <p className="text-gray-600 font-medium">
                       Drop receipt here
                     </p>
                     <p className="text-sm text-gray-400">or click to browse</p>
-                  </div>
+                  </div> */}
 
-                  {/* Results Preview */}
-                  <div className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-xl p-6">
+          {/* Results Preview */}
+          {/* <div className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-xl p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
                       <span className="font-semibold text-gray-800">
@@ -209,10 +212,10 @@ function Home() {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                </div> */}
+          {/* </div> */}
+          {/* </div>
+          </div> */}
         </div>
 
         {/* Features Section */}
@@ -313,7 +316,7 @@ function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/auth"
+                href="/auth?mode=signup"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-purple-700 rounded-lg font-semibold text-lg shadow-purple-900/30 hover:shadow-2xl hover:scale-105 transition-all"
               >
                 Get Started Free
@@ -331,19 +334,20 @@ function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 py-6 mt-20">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
+      <footer className="pb-6 ">
+        <div className="mx-auto px-6">
+          <div className="flex flex-col justify-center items-center gap-6">
+            <div className="origin-center bg-gradient-to-r from-transparent via-purple-400/70 via-blue-400/70 to-transparent w-full h-[2px]" />
+            {/* <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
                 <Receipt className="w-5 h-5 text-white" />
               </div>
               <span className="font-bold text-gray-200">AI Receipt</span>
-            </div>
+            </div> */}
             <p className="text-gray-200 text-sm">
               © 2025 AI Receipt. All rights reserved.
             </p>
-            <div className="flex gap-6 text-sm text-gray-100">
+            {/* <div className="flex gap-6 text-sm text-gray-100">
               <a href="#" className="hover:text-gray-400 transition">
                 Privacy
               </a>
@@ -353,7 +357,7 @@ function Home() {
               <a href="#" className="hover:text-gray-400 transition">
                 Contact
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
       </footer>

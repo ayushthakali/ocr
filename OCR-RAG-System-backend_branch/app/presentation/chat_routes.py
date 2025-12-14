@@ -19,7 +19,7 @@ async def chat(request: ChatRequest,
     """
     try:
         # Extract user_id and company_id from authenticated user
-        user_id = current_user["uid"]
+        user_id = current_user["userId"]
         company_id = current_user["activeCompany"]
        
 

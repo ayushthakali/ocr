@@ -38,7 +38,7 @@ function Sidebar() {
     try {
       await axios.post(`/api/auth/logout`, { withCredentials: true });
       toast.success("Logged out successfully!");
-      router.push("/");
+      router.push("/auth");
     } catch {
       toast.error("Logout failed!");
     }
@@ -55,7 +55,7 @@ function Sidebar() {
         <div className="pt-6 px-6 pb-1 flex justify-between items-center ">
           <div>
             <h1 className="text-white text-4xl font-bold tracking-tight font-poppins">
-              AIReceipt
+              AI Receipt
             </h1>
             <p className="text-gray-300 text-xs mt-1">Document Scanner</p>
           </div>
@@ -89,7 +89,7 @@ function Sidebar() {
                       <div className="h-2 w-24 bg-white/10 rounded animate-pulse"></div>
                     ) : (
                       <p className="text-sm text-white font-medium truncate">
-                        {selectedCompany || "Select Company"}
+                        {selectedCompany.company_name || "Select Company"}
                       </p>
                     )}
                   </div>
@@ -113,11 +113,11 @@ function Sidebar() {
                       <button
                         key={company._id}
                         onClick={() => {
-                          setSelectedCompany(company.company_name);
+                          setSelectedCompany(company);
                           setIsCompanyDropdownOpen(false);
                         }}
                         className={`w-full px-3 py-2 text-left text-sm transition-colors hover:bg-white/10 ${
-                          selectedCompany === company.company_name
+                          selectedCompany === company
                             ? "bg-white/5 text-white"
                             : "text-gray-400"
                         }`}

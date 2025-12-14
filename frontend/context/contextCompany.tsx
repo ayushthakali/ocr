@@ -20,9 +20,9 @@ interface Company {
 
 interface CompanyContextType {
   companies: Company[];
-  selectedCompany: string;
+  selectedCompany: Company;
   isLoading: boolean;
-  setSelectedCompany: (company: string) => void;
+  setSelectedCompany: (company: Company) => void;
   fetchCompanies: () => Promise<void>;
   addCompany: (company: {
     company_name: string;
@@ -35,9 +35,12 @@ const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
 
 export function CompanyProvider({ children }: { children: ReactNode }) {
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [selectedCompany, setSelectedCompany] = useState<string>("");
+  const [selectedCompany, setSelectedCompany] = useState<Company>({
+    _id: "",
+    company_name: "",
+    pan_no: "",
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
 
   const fetchCompanies = useCallback(async () => {
     try {
@@ -45,7 +48,9 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
       const response = await axios.get("/api/company/get-companies");
       const fetchedCompanies = response.data.companies || [];
       setCompanies(fetchedCompanies);
-      setSelectedCompany(fetchedCompanies[0].company_name);
+      setSelectedCompany(
+        fetchedCompanies[0] || { _id: "", company_name: "", pan_no: "" }
+      );
     } catch (err) {
       console.error("Failed to fetch companies:", err);
       const message = getErrorMessage(err);

@@ -19,8 +19,9 @@ export async function GET() {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+    const userId = decoded.userId;
 
-    const companies = await Company.find({ user_id: decoded.id });
+    const companies = await Company.find({ user_id: userId });
 
     return NextResponse.json(
       { message: "Companies fetched successfully!", companies },

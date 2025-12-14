@@ -46,7 +46,7 @@ export function ChatboxProvider({
       setIsLoading(true);
       const aiRes = await axios.post("/api/chat", {
         query: currentInput,
-        selectedCompany,
+        selectedCompany: selectedCompany._id,
       });
       const aiMessage: Message = {
         id: Date.now().toString(),

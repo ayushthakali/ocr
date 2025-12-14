@@ -10,6 +10,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Header from "@/components/Header";
+import { useCompany } from "@/context/contextCompany";
 
 interface QueueItem {
   id: number;
@@ -27,6 +28,7 @@ export default function Upload() {
   const [isDragging, setIsDragging] = useState(false);
   const [processingQueue, setProcessingQueue] = useState<QueueItem[]>([]);
   const [queueIdCounter, setQueueIdCounter] = useState(0);
+  const { selectedCompany } = useCompany();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -81,7 +83,7 @@ export default function Upload() {
   const removeFromQueue = (queueId: number) => {
     setTimeout(() => {
       setProcessingQueue((prev) => prev.filter((item) => item.id !== queueId));
-    }, 20000);
+    }, 7000);
   };
 
   const uploadFile = async (file: File) => {
@@ -93,12 +95,13 @@ export default function Upload() {
       const res = await axios.post("/api/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          "X-Active-Company": selectedCompany._id,
         },
       });
 
       updateQueueItem(queueId, "success", res.data);
       removeFromQueue(queueId);
-    } catch (err: any) {
+    } catch (err) {
       console.error("API Error: ", err);
       updateQueueItem(queueId, "error", {
         error: "Upload failed",
