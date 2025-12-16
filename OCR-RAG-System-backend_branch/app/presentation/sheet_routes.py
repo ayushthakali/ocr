@@ -37,7 +37,7 @@ async def get_sheets_status(current_user: dict = Depends(get_current_user)):
 async def connect_sheets(current_user: dict = Depends(get_current_user)):
     """Initiate Google OAuth flow for user's active company"""
     # Generate state with user_id AND company_id to identify user + company in callback
-    user_id = current_user["uid"]
+    user_id = current_user["userId"]
     company_id = current_user["activeCompany"]
     state = f"{user_id}:{company_id}"
 

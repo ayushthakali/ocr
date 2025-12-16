@@ -1,34 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import {
   CloudUpload,
   FileText,
   Check,
   X as XIcon,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 import Header from "@/components/Header";
 import { useCompany } from "@/context/contextCompany";
-
-interface QueueItem {
-  id: number;
-  fileName: string;
-  status: "processing" | "success" | "error";
-  timestamp: string;
-  data?: {
-    document_key?: string;
-    category?: string;
-    error?: string;
-  };
-}
-
+import { useUpload } from "@/context/contextUpload";
 export default function Upload() {
   const [isDragging, setIsDragging] = useState(false);
-  const [processingQueue, setProcessingQueue] = useState<QueueItem[]>([]);
-  const [queueIdCounter, setQueueIdCounter] = useState(0);
   const { selectedCompany } = useCompany();
+  const {
+    processingQueue,
+    errorMessage,
+    MAX_FILES,
+    processFiles,
+    isUploadDisabled,
+  } = useUpload();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -43,70 +36,22 @@ export default function Upload() {
     e.preventDefault();
     setIsDragging(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
-    droppedFiles.forEach((file) => uploadFile(file));
+    processFiles(
+      droppedFiles,
+      selectedCompany._id,
+      selectedCompany.company_name
+    );
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
-      selectedFiles.forEach((file) => uploadFile(file));
-    }
-  };
-
-  const addToQueue = (file: File): number => {
-    const queueId = queueIdCounter + 1;
-    setQueueIdCounter(queueId);
-
-    const queueItem: QueueItem = {
-      id: queueId,
-      fileName: file.name,
-      status: "processing",
-      timestamp: new Date().toLocaleTimeString(),
-    };
-
-    setProcessingQueue((prev) => [...prev, queueItem]);
-    return queueId;
-  };
-
-  const updateQueueItem = (
-    queueId: number,
-    status: "processing" | "success" | "error",
-    data?: any
-  ) => {
-    setProcessingQueue((prev) =>
-      prev.map((item) =>
-        item.id === queueId ? { ...item, status, data } : item
-      )
-    );
-  };
-
-  const removeFromQueue = (queueId: number) => {
-    setTimeout(() => {
-      setProcessingQueue((prev) => prev.filter((item) => item.id !== queueId));
-    }, 7000);
-  };
-
-  const uploadFile = async (file: File) => {
-    const queueId = addToQueue(file);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await axios.post("/api/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "X-Active-Company": selectedCompany._id,
-        },
-      });
-
-      updateQueueItem(queueId, "success", res.data);
-      removeFromQueue(queueId);
-    } catch (err) {
-      console.error("API Error: ", err);
-      updateQueueItem(queueId, "error", {
-        error: "Upload failed",
-      });
-      removeFromQueue(queueId);
+      processFiles(
+        selectedFiles,
+        selectedCompany._id,
+        selectedCompany.company_name
+      );
+      e.target.value = "";
     }
   };
 
@@ -139,8 +84,7 @@ export default function Upload() {
   return (
     <section className="min-h-screen">
       <Header title="Upload Document" isGallery={false} />
-
-      <div className="pt-40 pb-12 px-6 max-w-[90vw] mx-auto grid md:grid-cols-2 gap-6">
+      <div className="pt-28 pb-12 px-6 max-w-[90vw] mx-auto grid md:grid-cols-2 gap-6">
         {/* Left Column: Upload Area */}
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
           {/* Title Section */}
@@ -153,10 +97,19 @@ export default function Upload() {
                 Upload Documents
               </h3>
               <p className="text-sm text-gray-400">
-                Drag and drop or click to select files
+                Drag and drop or click to select files (Max {MAX_FILES}{" "}
+                documents.)
               </p>
             </div>
           </div>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <p className="text-sm text-red-400">{errorMessage}</p>
+            </div>
+          )}
 
           {/* Drop Area */}
           <div
@@ -164,7 +117,9 @@ export default function Upload() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={`relative border-2 border-dashed rounded-2xl p-12 transition-all duration-300 ${
-              isDragging
+              isUploadDisabled
+                ? "border-gray-600 bg-gray-500/5 cursor-not-allowed opacity-50"
+                : isDragging
                 ? "border-purple-500 bg-purple-500/10 scale-[1.02]"
                 : "border-white/20 bg-white/5 hover:border-white/30 hover:bg-white/10"
             }`}
@@ -181,23 +136,25 @@ export default function Upload() {
                   }`}
                 />
               </div>
-
               <div>
                 <p className="text-lg font-semibold text-white mb-2">
-                  Drop your files here
+                  {isUploadDisabled
+                    ? "Maximum files reached"
+                    : "Drop your files here"}
                 </p>
                 <p className="text-sm text-gray-400">
-                  or click to browse from your device
+                  {isUploadDisabled
+                    ? "Wait for current uploads to complete"
+                    : "or click to browse from your device"}
                 </p>
               </div>
-
               <input
                 type="file"
                 multiple
                 onChange={handleFileSelect}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                disabled={isUploadDisabled}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
               />
-
               <div className="flex gap-2 text-xs text-gray-500">
                 <span>Supported: PDF, JPG, PNG, WEBP</span>
               </div>
@@ -214,10 +171,9 @@ export default function Upload() {
                 Processing Queue
               </h3>
               <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-sm font-semibold">
-                {processingQueue.length}
+                {processingQueue.length}/{MAX_FILES}
               </span>
             </div>
-
             <div className="space-y-3 max-h-[60vh] overflow-y-auto">
               {processingQueue.length === 0 ? (
                 <div className="w-full text-center my-4">
@@ -266,7 +222,7 @@ export default function Upload() {
                     {item.data?.document_key && (
                       <div className="mt-2 p-2 bg-white/5 rounded border border-white/10">
                         <span className="text-xs text-gray-400">
-                          Document ID:
+                          Document ID:{" "}
                         </span>
                         <span className="text-xs text-white font-mono">
                           {item.data.document_key}

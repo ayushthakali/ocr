@@ -19,18 +19,37 @@ export async function GET(
   const selectedCompany = req.headers.get("X-Active-Company") || "";
 
   try {
-    const res = await axios.get(`http://localhost:8000/generate-csv/${id}`, {
+    const res = await axios.get(`http://localhost:8000/generate-excel/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "X-Active-Company": selectedCompany,
       },
+      responseType: "arraybuffer",
     });
 
-    return NextResponse.json(res.data);
+    const fileBytes = res.data;
+
+    const filenameHeader = res.headers["content-disposition"];
+    let filename = "";
+    if (filenameHeader) {
+      const fileNameMatch = filenameHeader.match(/filename="(.+)"/);
+      if (fileNameMatch) {
+        filename = fileNameMatch[1];
+      }
+    }
+
+    return new Response(fileBytes, {
+      status: 200,
+      headers: {
+        "Content-Type":
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+      },
+    });
   } catch (err) {
-    console.error("Error generating CSV:", err);
+    console.error("Error fetching Excel from backend:", err);
     return NextResponse.json(
-      { error: "API Error! Error generating csv files." },
+      { error: "Failed to generate Excel file" },
       { status: 500 }
     );
   }

@@ -34,6 +34,9 @@ RUN pip install --no-cache-dir torch torchvision --index-url https://download.py
 # Install remaining Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+
+
+
 # Copy application code
 COPY . .
 

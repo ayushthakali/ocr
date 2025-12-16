@@ -1,11 +1,13 @@
 from pathlib import Path
 from app.utils.key_generator import FileKeyGenerator
 from app.infrastructure.firebase.firebase_service import FirebaseService
+from app.infrastructure.parser.gemini_parser_service import GeminiParserService
+from app.infrastructure.ocr.tesseract_service import OCRService
 
 class DocumentProcessor:
     """Main coordinator: OCR -> Gemini Parser -> Save JSON in Firebase"""
 
-    def __init__(self, ocr, parser):
+    def __init__(self, ocr: OCRService, parser: GeminiParserService):
         self.ocr = ocr
         self.parser = parser
         self.key_gen = FileKeyGenerator()
@@ -45,8 +47,14 @@ class DocumentProcessor:
 
         # 2. Parse with Gemini asynchronously
         print("🤖 Sending to Gemini for parsing...")
-        parsed_data = await self.parser.parse_async(ocr_text, image_url or image_path)
-        print("✅ Gemini parsing complete")
+        try:
+            parsed_data = await self.parser.parse_async(ocr_text, image_url or image_path)
+            print("✅ Gemini parsing complete")
+        except Exception as e:
+            print(f"❌ Gemini parsing failed: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            raise
 
         # 3. Generate unique document key
         parsed_data["document_key"] = self.key_gen.generate_key(
@@ -59,12 +67,18 @@ class DocumentProcessor:
 
         # 5. Save to Firebase asynchronously with user and company-specific path
         print("💾 Saving to Firebase...")
-        saved_result = await self.firebase.save_async(
-            data=parsed_data,
-            user_id=user_id,
-            company_id=company_id
-        )
-        print(f"✅ Saved to Firebase with key: {saved_result.get('document_key')}")
+        try:
+            saved_result = await self.firebase.save_async(
+                data=parsed_data,
+                user_id=user_id,
+                company_id=company_id
+            )
+            print(f"✅ Saved to Firebase with key: {saved_result.get('document_key')}")
+        except Exception as e:
+            print(f"❌ Firebase save failed: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            raise
 
         return saved_result
 

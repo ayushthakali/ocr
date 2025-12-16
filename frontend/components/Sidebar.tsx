@@ -113,6 +113,7 @@ function Sidebar() {
                       <button
                         key={company._id}
                         onClick={() => {
+                          toast.info(`Company switched to ${company.company_name}`);
                           setSelectedCompany(company);
                           setIsCompanyDropdownOpen(false);
                         }}

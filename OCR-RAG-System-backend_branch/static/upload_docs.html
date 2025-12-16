@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Document - Testing Mode</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="sidebar-layout.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/sidebar-layout.css">
 </head>
 
 <body>
@@ -34,7 +34,7 @@
         <a href="dashboard.html">Dashboard</a>
         <a href="upload_docs.html" class="active">Upload</a>
         <a href="sheets.html">Sheet</a>
-    </div>  
+    </div>
     <div class="content">
         <div class="title-header">
             <div class="title">Upload Document</div>
@@ -42,7 +42,7 @@
                 View Google Sheets</button>
         </div>
         <!-- Google Sheets Connection Status -->
-        <div id="sheetsStatus" class="sheets-status">
+        <div id="sheetsStatus" class="sheets-status" style="display: none;">
             <p>Checking Google Sheets connection...</p>
         </div>
         <div class="main-layout">
@@ -97,15 +97,25 @@
 
         // Check Google Sheets connection status on page load
         async function checkSheetsConnection() {
+            const statusDiv = document.getElementById('sheetsStatus');
+
             try {
+                // Add timeout to prevent hanging
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
                 const response = await fetch('/api/sheets/status', {
                     headers: {
                         'Authorization': 'Bearer test_token'
-                    }
+                    },
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
                 const data = await response.json();
 
-                const statusDiv = document.getElementById('sheetsStatus');
+                // Show the status div
+                statusDiv.style.display = 'block';
 
                 if (data.connected) {
                     statusDiv.innerHTML = `
@@ -116,12 +126,6 @@
                             </p>
                         </div>
                     `;
-                    // Enable upload
-                    dropZone.classList.remove('disabled');
-                    dropZone.style.pointerEvents = 'auto';
-                    dropZone.style.opacity = '1';
-                    fileInput.disabled = false;
-                    browseBtn.disabled = false;
                 } else {
                     statusDiv.innerHTML = `
                         <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px;">
@@ -133,20 +137,34 @@
                             </p>
                         </div>
                     `;
-                    // Disable upload
-                    dropZone.classList.add('disabled');
-                    dropZone.style.pointerEvents = 'none';
-                    dropZone.style.opacity = '0.5';
-                    fileInput.disabled = true;
-                    browseBtn.disabled = true;
                 }
+
+                // Upload is always enabled (Google Sheets is optional)
+                dropZone.classList.remove('disabled');
+                dropZone.style.pointerEvents = 'auto';
+                dropZone.style.opacity = '1';
+                fileInput.disabled = false;
+                browseBtn.disabled = false;
+
             } catch (error) {
                 console.error('Error checking sheets connection:', error);
-                document.getElementById('sheetsStatus').innerHTML = `
-                    <div style="background: #fee2e2; border: 1px solid #ef4444; padding: 15px; border-radius: 8px;">
-                        <p style="color: #991b1b; margin: 0;">❌ Error checking Google Sheets connection</p>
+
+                // Show error but still allow uploads
+                statusDiv.style.display = 'block';
+                statusDiv.innerHTML = `
+                    <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px;">
+                        <p style="color: #92400e; margin: 0;">
+                            ℹ️ <strong>Google Sheets status unavailable</strong> (Upload still works)
+                        </p>
                     </div>
                 `;
+
+                // Enable upload even if sheets check fails
+                dropZone.classList.remove('disabled');
+                dropZone.style.pointerEvents = 'auto';
+                dropZone.style.opacity = '1';
+                fileInput.disabled = false;
+                browseBtn.disabled = false;
             }
         }
 
@@ -192,8 +210,22 @@
             }
         }
 
-        // Check connection on page load
-        window.addEventListener('DOMContentLoaded', checkSheetsConnection);
+        // Check connection on page load (with timeout to prevent hanging)
+        window.addEventListener('DOMContentLoaded', () => {
+            // Enable upload immediately
+            dropZone.classList.remove('disabled');
+            dropZone.style.pointerEvents = 'auto';
+            dropZone.style.opacity = '1';
+            fileInput.disabled = false;
+            browseBtn.disabled = false;
+
+            // Check sheets connection in background (non-blocking)
+            setTimeout(() => {
+                checkSheetsConnection().catch(err => {
+                    console.error('Failed to check sheets connection:', err);
+                });
+            }, 100);
+        });
         function updateQueueCount() {
             const count = processingQueue.length;
             document.getElementById('queueCount').textContent = count;

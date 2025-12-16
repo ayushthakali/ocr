@@ -1,12 +1,14 @@
 import json
 import os
+from typing import Dict
 
 class FileKeyGenerator:
-    def __init__(self, counter_file="counters.json"):
+    def __init__(self, counter_file: str = "counters.json"):
         self.counter_file = counter_file
+        self.counters: Dict[str, int] = {}
         self.load_counters()
 
-    def load_counters(self):
+    def load_counters(self) -> None:
         if os.path.exists(self.counter_file):
             with open(self.counter_file, "r") as f:
                 self.counters = json.load(f)
@@ -19,7 +21,7 @@ class FileKeyGenerator:
                 "other": 0
             }
 
-    def save_counters(self):
+    def save_counters(self) -> None:
         with open(self.counter_file, "w") as f:
             json.dump(self.counters, f)
 

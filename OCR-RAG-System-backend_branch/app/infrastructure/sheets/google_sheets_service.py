@@ -5,9 +5,10 @@ from datetime import datetime
 import os
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from typing import Optional, Dict, Any
 
 class GoogleSheetsService:
-    def __init__(self, credentials_file="app/config/google_service_account.json", spreadsheet_id="1aQsdIOl38P8Rr1uUSWAEtbBHrV-EAaja9KNkGL1fPT8", user_oauth_credentials=None):
+    def __init__(self, credentials_file: str = "app/config/google_service_account.json", spreadsheet_id: str = "1aQsdIOl38P8Rr1uUSWAEtbBHrV-EAaja9KNkGL1fPT8", user_oauth_credentials: Optional[Dict[str, Any]] = None):
         """
         Initialize Google Sheets service.
         

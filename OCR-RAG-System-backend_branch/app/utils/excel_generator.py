@@ -13,20 +13,20 @@ class ExcelGenerator:
         self.wb = None
         self.ws = None
         
-    def create_workbook(self):
+    def create_workbook(self) -> Workbook:
         """Create a new workbook"""
         self.wb = Workbook()
         self.ws = self.wb.active
         return self.wb
-    
-    def set_column_width(self, column: str, width: int):
+
+    def set_column_width(self, column: str, width: int) -> None:
         """Set column width"""
         self.ws.column_dimensions[column].width = width
     
-    def merge_and_write(self, start_cell: str, end_cell: str, value: Any, 
-                       font: Optional[Font] = None, 
+    def merge_and_write(self, start_cell: str, end_cell: str, value: Any,
+                       font: Optional[Font] = None,
                        alignment: Optional[Alignment] = None,
-                       fill: Optional[PatternFill] = None):
+                       fill: Optional[PatternFill] = None) -> None:
         """Merge cells and write value with formatting"""
         self.ws.merge_cells(f'{start_cell}:{end_cell}')
         cell = self.ws[start_cell]
@@ -42,7 +42,7 @@ class ExcelGenerator:
                   font: Optional[Font] = None,
                   alignment: Optional[Alignment] = None,
                   fill: Optional[PatternFill] = None,
-                  border: Optional[Border] = None):
+                  border: Optional[Border] = None) -> None:
         """Write to a cell with formatting"""
         target_cell = self.ws[cell]
         target_cell.value = value
@@ -55,7 +55,7 @@ class ExcelGenerator:
         if border:
             target_cell.border = border
     
-    def apply_border_to_range(self, start_cell: str, end_cell: str, border: Border):
+    def apply_border_to_range(self, start_cell: str, end_cell: str, border: Border) -> None:
         """Apply border to a range of cells"""
         from openpyxl.utils import range_boundaries
         min_col, min_row, max_col, max_row = range_boundaries(f'{start_cell}:{end_cell}')
@@ -121,7 +121,7 @@ class ExcelGenerator:
         
         return str(value)
     
-    def auto_adjust_column_width(self, column: str, min_width: int = 10, max_width: int = 50):
+    def auto_adjust_column_width(self, column: str, min_width: int = 10, max_width: int = 50) -> None:
         """Auto-adjust column width based on content"""
         max_length = 0
         column_letter = column

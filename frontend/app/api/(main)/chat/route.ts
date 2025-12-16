@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     }
 
     const res = await axios.post(
-      "http://localhost:8000/chat",
+      "http://localhost:8000/api/chat",
       { query },
       {
         headers: {

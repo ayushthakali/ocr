@@ -14,6 +14,7 @@ export async function POST(req: Request) {
 
     // Get selected company from headers
     const selectedCompany = req.headers.get("X-Active-Company") || "";
+    const companyName = req.headers.get("X-Company-Name") || "";
 
     // Create new FormData for backend
     const backendFormData = new FormData();
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
         headers: {
           Authorization: `Bearer ${token}`,
           "X-Active-Company": selectedCompany,
+          "X-Company-Name": companyName,
         },
       }
     );

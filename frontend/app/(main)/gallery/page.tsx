@@ -75,15 +75,23 @@ function Gallery() {
           headers: {
             "X-Active-Company": selectedCompany._id,
           },
+          responseType: "blob",
         }
       );
 
-      // Extract CSV data
-      const csvData = response.data.csv;
-      const filename = response.data.filename;
+      // Extract filename from headers
+      const filenameHeader = response.headers["content-disposition"];
+      let filename = "";
+      const fileNameMatch = filenameHeader.match(/filename="(.+)"/);
+      if (fileNameMatch) {
+        filename = fileNameMatch[1];
+      }
 
       // Create Blob and download
-      const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
 
@@ -96,8 +104,8 @@ function Gallery() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Failed to download CSV:", error);
-      alert("Failed to download CSV. Please try again.");
+      console.error("Failed to download Excel:", error);
+      alert("Failed to download Excel. Please try again.");
     } finally {
       setIsDownloading(false);
     }

@@ -2,13 +2,22 @@
 RAG (Retrieval-Augmented Generation) Service
 Combines vector search with Gemini LLM for intelligent Q&A
 """
+
 from typing import List, Dict, Tuple, Optional
+
+from langchain_groq import ChatGroq
 from app.infrastructure.embeddings.embedding_service import get_embedding_service
 from app.infrastructure.vector_db.faiss_service import get_faiss_service
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
 import os
 import re
+from app.infrastructure.parser.gemini_rate_limiter import get_rate_limiter, APIProvider
+import logging
+
+from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 
 class RAGService:
@@ -16,19 +25,25 @@ class RAGService:
     
     def __init__(self):
         """Initialize RAG service"""
+        load_dotenv(override=True) # Force reload from .env
         self.embedding_service = get_embedding_service()
         self.vector_db = get_faiss_service()
         
-        # Initialize Gemini
-        api_key = os.getenv("GEMINI_API_KEY")
+        api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
-            raise ValueError("GEMINI_API_KEY not found in environment variables")
+            raise ValueError("GROQ_API_KEY not found in environment variables")
 
-        self.llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
-            google_api_key=api_key,
-            temperature=0.7
+        # Initialize Groq (llama-3.3-70b-versatile)
+        # llama-3.1-8b-instant
+        self.llm = ChatGroq(
+            model="llama-3.1-8b-instant",
+            groq_api_key=api_key,
+            temperature=0
         )
+        
+        # Initialize Rate Limiter (Separate from Parser)
+        # We use a unique name 'groq_chat' to have a separate token bucket
+        self.rate_limiter = get_rate_limiter(name="groq_chat", provider=APIProvider.GROQ)
     
     def analyze_query_type(self, query: str) -> Tuple[str, bool]:
         """
@@ -340,16 +355,15 @@ Answer:"""
     
     async def generate_response_async(self, messages: List) -> str:
         """
-        Generate response using Gemini (async version)
-        
-        Args:
-            messages: List of messages
-            
-        Returns:
-            Generated response
+        Generate response using Gemini (async version) - High Priority
         """
         try:
-            response = await self.llm.ainvoke(messages)
+            # Use High Priority (0) 
+            response = await self.rate_limiter.execute_with_retry(
+                self.llm.ainvoke,
+                messages,
+                priority=0
+            )
             return response.content
         except Exception as e:
             return f"Error generating response: {str(e)}"

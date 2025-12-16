@@ -12,7 +12,7 @@ router = APIRouter()
 @router.get("/generate-csv/{doc_id}")
 def generate_csv(doc_id: str, current_user: dict = Depends(get_current_user)):
     obj = FirebaseToCSV()
-    user_id = current_user["uid"]
+    user_id = current_user["userId"]
     company_id = current_user["activeCompany"]
 
     # Updated path with company structure
@@ -48,7 +48,7 @@ def generate_excel(doc_id: str, current_user: dict = Depends(get_current_user)):
     """
     Generate a beautifully formatted Excel file for a document
     """
-    user_id = current_user["uid"]
+    user_id = current_user["userId"]
     company_id = current_user["activeCompany"]
 
     # Get document data from Firebase

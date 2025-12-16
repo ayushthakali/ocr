@@ -6,6 +6,7 @@ import { useCompany } from "./contextCompany";
 type ChatboxContextType = {
   messages: Message[];
   isLoading: boolean;
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   sendMessage: (input: string, clearInput: () => void) => Promise<void>;
 };
 
@@ -70,7 +71,7 @@ export function ChatboxProvider({
   };
 
   return (
-    <ChatboxContext.Provider value={{ messages, isLoading, sendMessage }}>
+    <ChatboxContext.Provider value={{ messages, isLoading, sendMessage, setMessages }}>
       {children}
     </ChatboxContext.Provider>
   );

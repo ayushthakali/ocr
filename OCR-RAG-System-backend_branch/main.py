@@ -25,20 +25,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Mount media folder to serve uploaded images
-app.mount("/media", StaticFiles(directory="media"), name="media")
-
-# Mount static folder to serve HTML, CSS, JS files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Include your API routes
-app.include_router(sheet_router)  
+# Include your API routes FIRST (before mounting static files)
+app.include_router(sheet_router)
 app.include_router(upload_router)
 app.include_router(csv_router)
 app.include_router(search_router)
 app.include_router(chat_router)
 
+# Mount media folder to serve uploaded images
+app.mount("/media", StaticFiles(directory="media"), name="media")
+
+# Mount static folder to serve HTML, CSS, JS files (LAST to avoid conflicts)
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
+
 @app.get("/")
 def home():
-    return {"message": "This is a home page"}
+    return {"message": "This is a home page", "status": "Server is running!", "timestamp": "2025-12-15"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "server": "running"}

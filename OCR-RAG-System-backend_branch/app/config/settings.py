@@ -12,7 +12,7 @@ def init_firebase():
     try:
         cred = credentials.Certificate("app/config/serviceAccountKey.json")
         _firebase_app = firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://ocr-system-b3084-default-rtdb.firebaseio.com/'
+            'databaseURL': 'https://ocr-rag-7d026-default-rtdb.firebaseio.com/'
             
         })
         print("Firebase Realtime Database initialized successfully!")

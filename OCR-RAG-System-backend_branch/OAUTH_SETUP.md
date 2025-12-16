@@ -122,3 +122,12 @@ For production:
 - Tokens are automatically refreshed when expired
 - Each user has their own isolated Google Sheet
 - Users can disconnect their Google Sheets at any time via `/api/sheets/disconnect`
+
+
+## GOOGLE_API_KEY (For Google Sheets/Drive & Search)
+Where: Google Cloud Console
+Steps:
+Go to APIs & Services > Credentials.
+Click + CREATE CREDENTIALS at the top.
+Select API Key.
+Copy the generated key.

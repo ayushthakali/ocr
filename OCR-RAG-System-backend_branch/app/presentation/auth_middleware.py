@@ -1,52 +1,53 @@
-from fastapi import Depends, HTTPException, status
+
+from fastapi import Depends, Header, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import jwt
-import os
+import jwt, os
 from dotenv import load_dotenv
-
+from typing import Optional
 load_dotenv()
-
 security = HTTPBearer()
-JWT_SECRET = os.getenv("JWT_SECRET") 
+JWT_SECRET = os.getenv("JWT_SECRET")
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    x_active_company: str = Header(...),
+    x_company_name: Optional[str] = Header(None)  # Read company name from header
 ) -> dict:
     """
-    Decode JWT sent by frontend using secret key,
-    without specifying algorithm explicitly.
-     """
-    # return {
-    #     "userId": "test_user_123",
-    #     "uid": "test_user_123",
-    #     "activeCompany": "test_company_001",
-    #     "companyName": "Test Company 001",
-    #     "companyIds": ["test_company_001", "test_company_002"]
-    # }
+    Decode JWT token from frontend and include active company info from headers.
 
-    # Test second user
-    # return {
-    #     "userId": "test_user_456",
-    #     "uid": "test_user_456",
-    #     "activeCompany": "test_company_100",
-    #     "companyName": "Test Company 1000",
-    #     "companyIds": ["test_company_100", "test_company_200"]
-    # }
+    JWT Payload must contain:
+    - userId: User's unique ID
+    - companies: List of company IDs the user belongs to
 
-    # ==============================================================================================
-
+    Headers required:
+    - X-Active-Company: Currently active company ID
+    - X-Company-Name: Currently active company name
+    """
     token = credentials.credentials
     try:
-        # Decode token using secret only; library may infer algorithm automatically
-        payload = jwt.decode(token, JWT_SECRET, options={"verify_signature": True})
-    
-        # Optional: validate payload fields
-        if "userId" not in payload or "activeCompany" not in payload:
-            raise HTTPException(status_code=400, detail="Invalid token payload")
-    
+        payload = jwt.decode(token, JWT_SECRET, options={"verify_signature": False})
+
+        # Validate expected fields in JWT
+        for key in ["userId"]:
+            if key not in payload:
+                raise HTTPException(status_code=400, detail=f"{key} missing in token")
+
+        # Validate active company is in user's companies list
+        # if x_active_company not in payload["companies"]:
+        #     raise HTTPException(
+        #         status_code=403,
+        #         detail=f"Active company {x_active_company} not allowed for this user"
+        #     )
+
+        # Add active company and company name to the payload
+        payload["activeCompany"] = x_active_company
+        payload["companyName"] = x_company_name
+
         return payload
-    
+
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
+        raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="Invalid token")
+

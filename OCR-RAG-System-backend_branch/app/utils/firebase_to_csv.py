@@ -3,6 +3,7 @@ from firebase_admin import db
 from dotenv import load_dotenv
 import csv
 import io
+from typing import List, Dict, Any, Optional
 
 load_dotenv()
 
@@ -12,7 +13,7 @@ class FirebaseToCSV:
         self.firebase = init_firebase()
 
     # ----------------------------------------------------------------------
-    def flatten_for_csv(self, data, parent_key='', sep='_'):
+    def flatten_for_csv(self, data: Any, parent_key: str = '', sep: str = '_') -> List[Dict[str, Any]]:
         """
         Recursively flatten nested dictionaries/lists into rows for CSV.
         - Nested dicts are expanded with key prefixes.
@@ -49,7 +50,7 @@ class FirebaseToCSV:
         return rows
 
     @staticmethod
-    def _expand_rows(base_rows, new_rows):
+    def _expand_rows(base_rows: List[Dict[str, Any]], new_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Helper function to expand rows when nested lists/dicts exist"""
         combined = []
         for base in base_rows:
@@ -58,7 +59,7 @@ class FirebaseToCSV:
         return combined
 
     # ----------------------------------------------------------------------
-    def generate_csv_from_rows(self, rows, exclude_fields=None):
+    def generate_csv_from_rows(self, rows: List[Dict[str, Any]], exclude_fields: Optional[List[str]] = None) -> Optional[str]:
         """
         Generate CSV text from flattened rows safely with all possible keys
 

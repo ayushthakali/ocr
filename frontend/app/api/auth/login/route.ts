@@ -50,7 +50,6 @@ export async function POST(req: Request) {
     // Payload
     const payload = {
       userId: user._id.toString(),
-      companies: companies.map((c) => c._id.toString()),
     };
 
     // Sign JWT
