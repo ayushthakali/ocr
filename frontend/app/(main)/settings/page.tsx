@@ -4,15 +4,7 @@ import { useState, useEffect } from "react";
 import { getErrorMessage } from "@/lib/getError";
 import { toast } from "react-toastify";
 import axios from "axios";
-import {
-  User,
-  Mail,
-  Loader2,
-  Building,
-  Briefcase,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { User, Mail, Loader2, Building, Briefcase, Plus } from "lucide-react";
 import { useCompany } from "@/context/contextCompany";
 import { DeleteDialog } from "@/components/DeleteDialog";
 

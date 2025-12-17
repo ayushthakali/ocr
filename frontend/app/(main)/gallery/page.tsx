@@ -267,16 +267,6 @@ function Gallery() {
                         {recp.document_type}
                       </span>
                     </div>
-
-                    <div className="absolute bottom-2 left-2 group-hover:scale-105 transform transition-transform duration-300 ease-in-out">
-                      <button
-                        onClick={handleDownloadCSV}
-                        disabled={isDownloading}
-                        className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transform transition-all duration-300 ease-in bg-green-500 group-hover:scale-105 hover:bg-green-500/80 cursor-pointer"
-                      >
-                        <Download className="w-6 h-6 text-white" />
-                      </button>
-                    </div>
                   </div>
                 ))
               )}
@@ -370,7 +360,7 @@ function Gallery() {
                         ) : (
                           <>
                             <Download className="w-5 h-5" />
-                            Download CSV
+                            Download Excel Sheet
                           </>
                         )}
                       </button>

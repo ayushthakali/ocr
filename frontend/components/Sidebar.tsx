@@ -113,8 +113,11 @@ function Sidebar() {
                       <button
                         key={company._id}
                         onClick={() => {
-                          toast.info(`Company switched to ${company.company_name}`);
+                          toast.info(
+                            `Company switched to ${company.company_name}`
+                          );
                           setSelectedCompany(company);
+                          sessionStorage.setItem("selectedCompany", company.company_name);
                           setIsCompanyDropdownOpen(false);
                         }}
                         className={`w-full px-3 py-2 text-left text-sm transition-colors hover:bg-white/10 ${
@@ -168,7 +171,7 @@ function Sidebar() {
                     />
                   }
                 </div>
-                <h2 className="text-sm font-medium ">{item.title}</h2>
+                <h2 className={`text-sm font-medium transition-all duration-300 ${isActive? "translate-x-2":""}`}>{item.title}</h2>
               </Link>
             );
           })}

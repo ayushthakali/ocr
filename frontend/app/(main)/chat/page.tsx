@@ -2,17 +2,15 @@
 
 import { useState, useEffect, useRef } from "react";
 import Header from "@/components/Header";
-import { ArrowUp, Loader2 } from "lucide-react";
+import { ArrowUp, Loader2, Square } from "lucide-react";
 import { useChatbox } from "@/context/contextChatbox";
 import ReactMarkdown from "react-markdown";
-import { useCompany } from "@/context/contextCompany";
-import ChatHistorySidebar from "@/components/ChatHistorySidebar";
+import ChatHistorySidebar from "@/app/(main)/chat/ChatHistorySidebar";
 
 function Chat() {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, sendMessage, setMessages } = useChatbox();
-  const { selectedCompany } = useCompany();
+  const { messages, isLoading, sendMessage } = useChatbox();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,7 +32,7 @@ function Chat() {
     <section className="h-screen">
       <Header title="RAG Chat - Chat with your documents" isGallery={false} />
 
-      <div className="pt-28 pb-4 px-4 max-h-screen h-full w-full flex">
+      <div className="pt-28 pb-4 px-2 max-h-screen h-full w-full flex">
         {/* Sidebar */}
         <ChatHistorySidebar />
 
@@ -139,7 +137,13 @@ function Chat() {
               disabled={isLoading}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center bg-gray-800 hover:bg-gray-700 peer-focus:bg-white/80 transition-all text-white peer-focus:text-black"
             >
-              <ArrowUp className="w-4 h-4 " />
+              {!isLoading ? (
+                <ArrowUp className="w-4 h-4 " />
+              ) : (
+                <div className="bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center">
+                  <Square className="w-2 h-2 bg-white/90" />
+                </div>
+              )}
             </button>
           </div>
         </div>

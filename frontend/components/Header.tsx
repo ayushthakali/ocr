@@ -1,7 +1,10 @@
 "use client";
 
 import { ExternalLink, Search } from "lucide-react";
+import axios from "axios";
 import { useSidebar } from "@/context/contextSidebar";
+import { toast } from "react-toastify";
+import { useCompany } from "@/context/contextCompany";
 
 function Header({
   title,
@@ -11,8 +14,26 @@ function Header({
   isGallery: boolean;
 }) {
   const { isOpen } = useSidebar();
-
+  const { selectedCompany } = useCompany();
   const sidebarWidth = isOpen ? "18rem" : "5.5rem"; // w-72 = 18rem, w-22 ≈ 5.5rem
+
+  const openUserGoogleSheets = async () => {
+    try {
+      const response = await axios.get("/api/sheets/status", {
+        headers: {
+          "X-Active-Company": selectedCompany._id,
+        },
+      });
+      if (response.data.connected && response.data.spreadsheet_url) {
+        window.open(response.data.spreadsheet_url, "_blank");
+      } else {
+        toast.error("Please connect your Google Sheets first.");
+      }
+    } catch (error) {
+      console.error("Error fetching Google Sheets URL:", error);
+      alert("Failed to open Google Sheets. Please try again.");
+    }
+  };
 
   return (
     <header
@@ -24,18 +45,14 @@ function Header({
           {title}
         </h1>
         <div className="flex items-center justify-center ">
-          <a
-            href="https://docs.google.com/spreadsheets/d/1XSsh29t1cDqmO3UEM_WNjZaM-URdotV9s8RTJN40aBw/edit?gid=0#gid=0"
-            target="_blank"
+          <button
+            onClick={openUserGoogleSheets}
             className="flex gap-2 items-center px-4 py-2 bg-gradient-to-br from-blue-600 to-purple-600 hover:bg-gradient-to-br hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95"
           >
             <ExternalLink />
             <span>View Google Sheets</span>
-          </a>
+          </button>
         </div>
-        {/* <button className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transform transition-all duration-300 ease-in bg-gray-800 group hover:scale-105 hover:bg-gray-700">
-          <User className="w-4 h-4 text-gray-300 group-hover:rotate-5 transition-all duration-300 ease-in" />
-        </button> */}
       </div>
       {isGallery && (
         <div className="flex items-center gap-2 w-1/2">
