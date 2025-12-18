@@ -32,12 +32,13 @@ function Gallery() {
     document_type: "",
   });
   const [filter, setFilter] = useState("all");
-  const { selectedCompany } = useCompany();
+  const { selectedCompany, setIsGalleryLoading } = useCompany();
 
   // Initial images fetching
   useEffect(() => {
     const fetchImageUrl = async () => {
       try {
+        setIsGalleryLoading(true);
         const res = await axios.get("/api/gallery", {
           headers: {
             "Content-Type": "application/json",
@@ -49,11 +50,12 @@ function Gallery() {
         console.error("Failed to fetch images!! API Error: ", err);
       } finally {
         setIsLoading(false);
+        setIsGalleryLoading(false);
       }
     };
 
     fetchImageUrl();
-  }, [selectedCompany]);
+  }, [selectedCompany, setIsGalleryLoading]);
 
   const filteredDocs =
     filter === "all"
@@ -69,6 +71,8 @@ function Gallery() {
   const handleDownloadCSV = async () => {
     try {
       setIsDownloading(true);
+      setIsGalleryLoading(true);
+
       const response = await axios.get(
         `/api/generate-csv/${selectedReceipt.doc_id}`,
         {
@@ -108,6 +112,7 @@ function Gallery() {
       alert("Failed to download Excel. Please try again.");
     } finally {
       setIsDownloading(false);
+      setIsGalleryLoading(true);
     }
   };
 
@@ -120,6 +125,7 @@ function Gallery() {
     }
 
     try {
+      setIsGalleryLoading(true);
       setIsLoading(true);
       const response = await axios.post("/api/search-document", formData, {
         headers: {
@@ -132,6 +138,7 @@ function Gallery() {
       console.error("Failed to fetch filtered docs.", err);
     } finally {
       setIsLoading(false);
+      setIsGalleryLoading(false);
     }
   };
 
@@ -217,7 +224,7 @@ function Gallery() {
           </div>
         ) : receipts.length === 0 ? (
           // No docs
-          <div className="flex flex-col items-center justify-center h-64 text-white/70 space-y-4">
+          <div className="flex flex-col items-center justify-center h-64 text-white/70 space-y-4 mt-20">
             <UploadCloud className="w-16 h-16 text-white/50" />
             <div className="text-center space-y-1">
               <p className="text-2xl font-medium">No documents uploaded...</p>

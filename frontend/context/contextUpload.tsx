@@ -1,5 +1,11 @@
 "use client";
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+} from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -46,104 +52,108 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   const [queueIdCounter, setQueueIdCounter] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const addToQueue = (file: File): number => {
-    const queueId = queueIdCounter + 1;
-    setQueueIdCounter(queueId);
+  const addToQueue = useCallback((file: File): number => {
+    let queueId: number;
+    setQueueIdCounter((prev) => {
+      queueId = prev + 1;
+      return queueId;
+    });
     const queueItem: QueueItem = {
-      id: queueId,
+      id: queueId!,
       fileName: file.name,
       status: "processing",
       timestamp: new Date().toLocaleTimeString(),
     };
     setProcessingQueue((prev) => [...prev, queueItem]);
-    return queueId;
-  };
+    return queueId!;
+  }, []);
 
-  const updateQueueItem = (
-    queueId: number,
-    status: "processing" | "success" | "error",
-    data?: any
-  ) => {
-    setProcessingQueue((prev) =>
-      prev.map((item) =>
-        item.id === queueId ? { ...item, status, data } : item
-      )
-    );
-  };
+  const updateQueueItem = useCallback(
+    (
+      queueId: number,
+      status: "processing" | "success" | "error",
+      data?: any
+    ) => {
+      setProcessingQueue((prev) =>
+        prev.map((item) =>
+          item.id === queueId ? { ...item, status, data } : item
+        )
+      );
+    },
+    []
+  );
 
-  const removeFromQueue = (queueId: number) => {
+  const removeFromQueue = useCallback((queueId: number) => {
     setTimeout(() => {
       setProcessingQueue((prev) => prev.filter((item) => item.id !== queueId));
     }, 1500);
-  };
+  }, []);
 
-  const uploadFile = async (
-    file: File,
-    companyId: string,
-    companyName: string
-  ) => {
-    const queueId = addToQueue(file);
-    const formData = new FormData();
-    formData.append("file", file);
+  const uploadFile = useCallback(
+    async (file: File, companyId: string, companyName: string) => {
+      const queueId = addToQueue(file);
+      const formData = new FormData();
+      formData.append("file", file);
 
-    try {
-      const res = await axios.post("/api/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "X-Active-Company": companyId,
-          "X-Company-Name": companyName,
-        },
-      });
-      updateQueueItem(queueId, "success", res.data);
-      removeFromQueue(queueId);
-    } catch (err) {
-      console.error("API Error: ", err);
-      updateQueueItem(queueId, "error", {
-        error: "Upload failed",
-      });
-      removeFromQueue(queueId);
-    }
-  };
+      try {
+        const res = await axios.post("/api/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "X-Active-Company": companyId,
+            "X-Company-Name": companyName,
+          },
+        });
+        updateQueueItem(queueId, "success", res.data);
+        removeFromQueue(queueId);
+      } catch (err) {
+        console.error("API Error: ", err);
+        updateQueueItem(queueId, "error", {
+          error: "Upload failed",
+        });
+        removeFromQueue(queueId);
+      }
+    },
+    [addToQueue, updateQueueItem, removeFromQueue]
+  );
 
-  const processFiles = (
-    files: File[],
-    companyId: string,
-    companyName: string
-  ) => {
-    const currentQueueLength = processingQueue.length;
-    const availableSlots = MAX_FILES - currentQueueLength;
+  const processFiles = useCallback(
+    (files: File[], companyId: string, companyName: string) => {
+      const currentQueueLength = processingQueue.length;
+      const availableSlots = MAX_FILES - currentQueueLength;
 
-    if (availableSlots <= 0) {
-      setErrorMessage(
-        `Maximum ${MAX_FILES} files allowed. Please wait for current uploads to complete.`
-      );
-      setTimeout(() => setErrorMessage(null), 5000);
-      return;
-    }
+      if (availableSlots <= 0) {
+        setErrorMessage(
+          `Maximum ${MAX_FILES} files allowed. Please wait for current uploads to complete.`
+        );
+        setTimeout(() => setErrorMessage(null), 5000);
+        return;
+      }
 
-    if (files.length > availableSlots) {
-      setErrorMessage(
-        `You can only upload ${availableSlots} more file(s). Maximum ${MAX_FILES} files at a time.`
-      );
-      setTimeout(() => setErrorMessage(null), 5000);
-      // Only process the files that fit
-      files
-        .slice(0, availableSlots)
-        .forEach((file) => uploadFile(file, companyId, companyName));
+      if (files.length > availableSlots) {
+        setErrorMessage(
+          `You can only upload ${availableSlots} more file(s). Maximum ${MAX_FILES} files at a time.`
+        );
+        setTimeout(() => setErrorMessage(null), 5000);
+        // Only process the files that fit
+        files
+          .slice(0, availableSlots)
+          .forEach((file) => uploadFile(file, companyId, companyName));
 
-      const rejectedFiles = files
-        .slice(availableSlots)
-        .map((f) => f.name)
-        .join(", ");
+        const rejectedFiles = files
+          .slice(availableSlots)
+          .map((f) => f.name)
+          .join(", ");
 
-      toast.error(`Failed to upload: ${rejectedFiles}`, {
-        position: "top-right",
-        autoClose: 4000,
-      });
-    } else {
-      files.forEach((file) => uploadFile(file, companyId, companyName));
-    }
-  };
+        toast.error(`Failed to upload: ${rejectedFiles}`, {
+          position: "top-right",
+          autoClose: 4000,
+        });
+      } else {
+        files.forEach((file) => uploadFile(file, companyId, companyName));
+      }
+    },
+    [processingQueue.length, uploadFile]
+  );
 
   const isUploadDisabled = processingQueue.length >= MAX_FILES;
 

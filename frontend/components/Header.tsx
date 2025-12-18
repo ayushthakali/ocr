@@ -5,6 +5,7 @@ import axios from "axios";
 import { useSidebar } from "@/context/contextSidebar";
 import { toast } from "react-toastify";
 import { useCompany } from "@/context/contextCompany";
+import { useState } from "react";
 
 function Header({
   title,
@@ -14,11 +15,14 @@ function Header({
   isGallery: boolean;
 }) {
   const { isOpen } = useSidebar();
-  const { selectedCompany } = useCompany();
+  const { selectedCompany, setIsSheetsLoading } = useCompany();
+  const [isLoading, setIsLoading] = useState(false);
   const sidebarWidth = isOpen ? "18rem" : "5.5rem"; // w-72 = 18rem, w-22 ≈ 5.5rem
 
   const openUserGoogleSheets = async () => {
     try {
+      setIsLoading(true);
+      setIsSheetsLoading(true);
       const response = await axios.get("/api/sheets/status", {
         headers: {
           "X-Active-Company": selectedCompany._id,
@@ -32,6 +36,9 @@ function Header({
     } catch (error) {
       console.error("Error fetching Google Sheets URL:", error);
       alert("Failed to open Google Sheets. Please try again.");
+    } finally {
+      setIsLoading(false);
+      setIsSheetsLoading(false);
     }
   };
 
@@ -44,15 +51,21 @@ function Header({
         <h1 className="text-white font-bold text-3xl tracking-tight">
           {title}
         </h1>
-        <div className="flex items-center justify-center ">
-          <button
-            onClick={openUserGoogleSheets}
-            className="flex gap-2 items-center px-4 py-2 bg-gradient-to-br from-blue-600 to-purple-600 hover:bg-gradient-to-br hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95"
-          >
-            <ExternalLink />
-            <span>View Google Sheets</span>
-          </button>
-        </div>
+
+        <button
+          onClick={openUserGoogleSheets}
+          disabled={isLoading}
+          className="flex gap-2 items-center justify-center px-4 py-2 bg-gradient-to-br from-blue-600 to-purple-600 hover:bg-gradient-to-br hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 cursor-pointer disabled:opacity/50"
+        >
+          {isLoading ? (
+            <div className="border-4 w-6 h-6 rounded-full border-t-transparent animate-spin border-white/80 transition-all" />
+          ) : (
+            <>
+              <ExternalLink />
+              <span>View Google Sheets</span>
+            </>
+          )}
+        </button>
       </div>
       {isGallery && (
         <div className="flex items-center gap-2 w-1/2">

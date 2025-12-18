@@ -26,7 +26,12 @@ interface SheetStatusResponse {
 
 export default function Upload() {
   const [isDragging, setIsDragging] = useState(false);
-  const { selectedCompany } = useCompany();
+  const {
+    selectedCompany,
+    setIsUploading,
+    isUploading,
+    setIsConnectingSheets,
+  } = useCompany();
   const {
     processingQueue,
     errorMessage,
@@ -44,11 +49,13 @@ export default function Upload() {
     spreadsheet_url: "",
   });
 
+  // To check connection with sheets
   useEffect(() => {
     const checkSheetConnection = async () => {
       if (!selectedCompany?._id) return;
 
       try {
+        setIsConnectingSheets(true);
         const response = await axios.get("/api/sheets/status", {
           headers: {
             "X-Active-Company": selectedCompany._id,
@@ -59,7 +66,7 @@ export default function Upload() {
           if (response.data.connected) {
             setShowSuccess(false);
           }
-        }, 1800);
+        }, 1000);
         if (!response.data.connected) {
           setShowSuccess(true);
         }
@@ -74,13 +81,23 @@ export default function Upload() {
         toast.error("Failed to check sheet connection.");
       } finally {
         setIsChecking(false);
+        setIsConnectingSheets(false);
       }
     };
     checkSheetConnection();
-  }, [selectedCompany]);
+  }, [selectedCompany, setIsConnectingSheets]);
 
+  //Monitor upload queue and unblock company switching when all uploads complete
+  useEffect(() => {
+    if (isUploading && processingQueue.length === 0) {
+      setIsUploading(false);
+    }
+  }, [processingQueue, isUploading, setIsUploading]);
+
+  // Connection to google sheets
   const handleConnect = async () => {
     try {
+      setIsConnectingSheets(true);
       setIsChecking(true);
       const response = await axios.get("/api/sheets/connect", {
         headers: {
@@ -98,6 +115,7 @@ export default function Upload() {
       toast.error("Failed to connect Google Sheets. Please try again.");
     } finally {
       setIsChecking(false);
+      setIsConnectingSheets(false);
     }
   };
 
@@ -110,25 +128,23 @@ export default function Upload() {
     setIsDragging(false);
   };
 
+  // Wrapper function to enable uploading and process files
+  const handleFilesAdded = (files: File[]) => {
+    setIsUploading(true);
+    processFiles(files, selectedCompany._id, selectedCompany.company_name);
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
-    processFiles(
-      droppedFiles,
-      selectedCompany._id,
-      selectedCompany.company_name
-    );
+    handleFilesAdded(droppedFiles);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
-      processFiles(
-        selectedFiles,
-        selectedCompany._id,
-        selectedCompany.company_name
-      );
+      handleFilesAdded(selectedFiles);
       e.target.value = "";
     }
   };

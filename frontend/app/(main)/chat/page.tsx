@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import { ArrowUp, Loader2, Square } from "lucide-react";
 import { useChatbox } from "@/context/contextChatbox";
@@ -8,23 +8,17 @@ import ReactMarkdown from "react-markdown";
 import ChatHistorySidebar from "@/app/(main)/chat/ChatHistorySidebar";
 
 function Chat() {
-  const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, sendMessage } = useChatbox();
+  const { messages, isLoading, sendMessage, setInput, input } = useChatbox();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // useEffect(() => {
-  //   setMessages([]);
-  //   setInput("");
-  // }, [selectedCompany, setMessages, setInput]);
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && e.ctrlKey) {
+    if (e.key === "Enter") {
       e.preventDefault();
-      sendMessage(input, () => setInput(""));
+      sendMessage();
     }
   };
 
@@ -133,7 +127,7 @@ function Chat() {
             />
 
             <button
-              onClick={() => sendMessage(input, () => setInput(""))}
+              onClick={() => sendMessage()}
               disabled={isLoading}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center bg-gray-800 hover:bg-gray-700 peer-focus:bg-white/80 transition-all text-white peer-focus:text-black"
             >

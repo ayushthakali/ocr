@@ -30,7 +30,7 @@ function SheetsConnection({
                   <FileText className="w-6 h-6 " />
                 </div>
 
-                <div className="absolute inset-0 animate-ping bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg"></div>
+                <div className="absolute inset-0 animate-ping bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg" />
               </div>
               {/* txt content */}
               <div>

@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 
 const SidebarContext = createContext({
   isOpen: true,
@@ -13,9 +13,9 @@ export function SidebarProvider({
 }>) {
   const [isOpen, setIsOpen] = useState(true);
 
-  const toggleSidebar = () => {
+  const toggleSidebar = useCallback(() => {
     setIsOpen((prev) => !prev);
-  };
+  }, []);
 
   return (
     <SidebarContext.Provider value={{ isOpen, toggleSidebar }}>

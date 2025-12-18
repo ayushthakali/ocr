@@ -1,13 +1,14 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useCompany } from "./contextCompany";
 
 type ChatboxContextType = {
   messages: Message[];
   isLoading: boolean;
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-  sendMessage: (input: string, clearInput: () => void) => Promise<void>;
+  sendMessage: () => Promise<void>;
+  input: string;
+  setInput: (input: string) => void;
 };
 
 const ChatboxContext = createContext<ChatboxContextType | undefined>(undefined);
@@ -23,30 +24,39 @@ export function ChatboxProvider({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { selectedCompany } = useCompany();
+  const { selectedCompany, setIsChatting } = useCompany();
 
-  const sendMessage = async (input: string, clearInput: () => void) => {
+  useEffect(() => {
+    setMessages([]);
+    setInput("");
+  }, [selectedCompany._id]);
+
+  useEffect(() => {
+    setIsChatting(isLoading);
+  }, [isLoading, setIsChatting]);
+
+  const sendMessage = async () => {
     if (!input.trim()) {
       return;
     }
-    const currentInput = input;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       sender: "user",
-      text: currentInput,
+      text: input,
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    clearInput();
+    setInput("");
 
     // API Call
     try {
       setIsLoading(true);
       const aiRes = await axios.post("/api/chat", {
-        query: currentInput,
+        query: input,
         selectedCompany: selectedCompany._id,
       });
       const aiMessage: Message = {
@@ -71,7 +81,9 @@ export function ChatboxProvider({
   };
 
   return (
-    <ChatboxContext.Provider value={{ messages, isLoading, sendMessage, setMessages }}>
+    <ChatboxContext.Provider
+      value={{ messages, sendMessage, isLoading, input, setInput }}
+    >
       {children}
     </ChatboxContext.Provider>
   );

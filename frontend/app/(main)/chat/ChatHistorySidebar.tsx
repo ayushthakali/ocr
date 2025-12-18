@@ -14,7 +14,6 @@ export default function ChatHistorySidebar() {
   //   } = useChatbox();
   const deleteChatHistory = () => {};
 
-  const [historyDropdown, setHistoryDropdown] = useState(false);
   const [chatHistories, setChatHistories] = useState([
     // Today
     {
@@ -415,7 +414,8 @@ export default function ChatHistorySidebar() {
             </div>
           ))}
       </div>
-      ){/* Info Footer */}
+
+      {/* Info Footer */}
       {chatHistories.length >= 6 && (
         <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
           <p className="text-xs text-yellow-400">
