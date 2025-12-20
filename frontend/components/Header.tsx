@@ -1,11 +1,12 @@
 "use client";
 
-import { ExternalLink, Search } from "lucide-react";
+import { SquareArrowOutUpRight, Search } from "lucide-react";
 import axios from "axios";
 import { useSidebar } from "@/context/contextSidebar";
 import { toast } from "react-toastify";
 import { useCompany } from "@/context/contextCompany";
 import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 function Header({
   title,
@@ -18,6 +19,8 @@ function Header({
   const { selectedCompany, setIsSheetsLoading } = useCompany();
   const [isLoading, setIsLoading] = useState(false);
   const sidebarWidth = isOpen ? "18rem" : "5.5rem"; // w-72 = 18rem, w-22 ≈ 5.5rem
+  const pathname = usePathname();
+  const router = useRouter();
 
   const openUserGoogleSheets = async () => {
     try {
@@ -32,6 +35,9 @@ function Header({
         window.open(response.data.spreadsheet_url, "_blank");
       } else {
         toast.error("Please connect your Google Sheets first.");
+        if (pathname !== "/upload") {
+          router.push("/upload");
+        }
       }
     } catch (error) {
       console.error("Error fetching Google Sheets URL:", error);
@@ -55,13 +61,13 @@ function Header({
         <button
           onClick={openUserGoogleSheets}
           disabled={isLoading}
-          className="flex gap-2 items-center justify-center px-4 py-2 bg-gradient-to-br from-blue-600 to-purple-600 hover:bg-gradient-to-br hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 cursor-pointer disabled:opacity/50"
+          className="flex gap-2 items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-800/90 to-purple-800 hover:bg-gradient-to-br hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 cursor-pointer disabled:opacity/50"
         >
           {isLoading ? (
             <div className="border-4 w-6 h-6 rounded-full border-t-transparent animate-spin border-white/80 transition-all" />
           ) : (
             <>
-              <ExternalLink />
+              <SquareArrowOutUpRight className="w-5 h-5" />
               <span>View Google Sheets</span>
             </>
           )}

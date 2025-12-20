@@ -192,27 +192,22 @@ function Gallery() {
           </form>
           <div>
             <label className="text-lg text-white/90 ">Type:</label>
-
             <select
               id="docTypeFilter"
               onChange={(e) => setFilter(e.target.value)}
               className="px-2 py-1 bg-white/10 text-white rounded-lg border border-white/20 ml-2"
             >
-              <option value="all" className="text-black">
-                All Types
-              </option>
-              <option value="receipt" className="text-black">
-                Receipt
-              </option>
-              <option value="invoice" className="text-black">
-                Invoice
-              </option>
-              <option value="bank statement" className="text-black">
-                Bank Statement
-              </option>
-              <option value="others" className="text-black">
-                Others
-              </option>
+              {[
+                { name: "All Types", value: "all" },
+                { name: "Receipt", value: "receipt" },
+                { name: "Invoice", value: "invoice" },
+                { name: "Bank Statement", value: "bank statement" },
+                { name: "Others", value: "others" },
+              ].map((type, i) => (
+                <option key={i} value={type.value} className="text-black">
+                  {type.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>

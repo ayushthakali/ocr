@@ -11,6 +11,7 @@ import {
   FileCheck,
   CheckCircle,
   CloudUpload,
+  SquareArrowOutUpRight,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -113,7 +114,7 @@ function Home() {
               <Receipt className="w-6 h-6 text-white" />
             </div>
             <span className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent font-poppins">
-              AI Receipt
+              Receipt AI
             </span>
           </div>
 
@@ -210,71 +211,80 @@ function Home() {
                 </div>
 
                 {/* Upload Section */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="flex flex-col items-start gap-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="p-2 bg-purple-500/20 rounded-lg">
-                        <CloudUpload className="w-6 h-6 text-purple-400" />
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-semibold text-white">
-                          Upload Documents
-                        </h3>
-                        <p className="text-xs text-gray-400">
-                          Drag and drop or click to select files
-                        </p>
-                      </div>
-                    </div>
-                    <div className="w-full border-2 border-dashed rounded-2xl p-12 transition-all duration-300 border-purple-500/50 bg-purple-500/10 ">
-                      <div className="relative flex flex-col items-center justify-center gap-4 text-center">
-                        <div className="p-6 rounded-full transition-all duration-300 bg-purple-500/20">
-                          <CloudUpload className="w-12 h-12 text-purple-400" />
+                <div>
+                  <div className="flex flex-col items-start gap-3 ">
+                    <div className="flex items-center justify-between w-full mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-purple-500/20 rounded-lg">
+                          <CloudUpload className="w-6 h-6 text-purple-400" />
                         </div>
-                        <div>
-                          <p className="text-lg font-semibold text-white mb-2">
-                            Drop your files here
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            or click to browse from your device
+                        <div className="text-left">
+                          <h3 className="font-semibold text-white">
+                            Upload Documents
+                          </h3>
+                          <p className="text-xs text-gray-400">
+                            Drag and drop or click to select files
                           </p>
                         </div>
-                        <div className="flex gap-2 text-xs text-gray-500">
-                          <span>Supported: PDF, JPG, PNG, WEBP</span>
+                      </div>
+                      <button className="flex gap-2 items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-800/90 to-purple-800 rounded-xl">
+                        <SquareArrowOutUpRight className="w-5 h-5" />
+                        <span>View Google Sheets</span>
+                      </button>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6 w-full">
+                      <div className="w-full border-2 border-dashed rounded-2xl p-12 transition-all duration-300 border-purple-500/50 bg-purple-500/10 ">
+                        <div className="relative flex flex-col items-center justify-center gap-4 text-center">
+                          <div className="p-6 rounded-full transition-all duration-300 bg-purple-500/20">
+                            <CloudUpload className="w-12 h-12 text-purple-400" />
+                          </div>
+                          <div>
+                            <p className="text-lg font-semibold text-white mb-2">
+                              Drop your files here
+                            </p>
+                            <p className="text-sm text-gray-400">
+                              or click to browse from your device
+                            </p>
+                          </div>
+                          <div className="flex gap-2 text-xs text-gray-500">
+                            <span>Supported: PDF, JPG, PNG, WEBP</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Results Preview */}
-                  <div className="bg-gradient-to-br from-gray-700/50 to-slate-700/50 rounded-xl p-6 border border-gray-600/30">
-                    <div className="flex items-center gap-2 mb-4">
-                      <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
-                      <span className="font-semibold text-gray-100">
-                        Extracted Data
-                      </span>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between bg-gray-800/80 px-3 py-2 rounded border border-gray-700/50">
-                        <span className="text-gray-400">Type:</span>
-                        <span className="font-medium text-emerald-400">
-                          Invoice
-                        </span>
-                      </div>
-                      <div className="flex justify-between bg-gray-800/80 px-3 py-2 rounded border border-gray-700/50">
-                        <span className="text-gray-400">Amount:</span>
-                        <span className="font-medium text-white">
-                          $1,234.56
-                        </span>
-                      </div>
-                      <div className="flex justify-between bg-gray-800/80 px-3 py-2 rounded border border-gray-700/50">
-                        <span className="text-gray-400">Date:</span>
-                        <span className="font-medium text-white">
-                          Dec 12, 2024
-                        </span>
-                      </div>
-                      <div className="flex justify-between bg-gray-800/80 px-3 py-2 rounded border border-gray-700/50">
-                        <span className="text-gray-400">Category:</span>
-                        <span className="font-medium text-white">Purchase</span>
+                      {/* Results Preview */}
+                      <div className="bg-gradient-to-br from-gray-700/50 to-slate-700/50 rounded-xl p-6 border border-gray-600/30">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
+                          <span className="font-semibold text-gray-100">
+                            Extracted Data
+                          </span>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between bg-gray-800/80 px-3 py-2 rounded border border-gray-700/50">
+                            <span className="text-gray-400">Type:</span>
+                            <span className="font-medium text-emerald-400">
+                              Invoice
+                            </span>
+                          </div>
+                          <div className="flex justify-between bg-gray-800/80 px-3 py-2 rounded border border-gray-700/50">
+                            <span className="text-gray-400">Amount:</span>
+                            <span className="font-medium text-white">
+                              $1,234.56
+                            </span>
+                          </div>
+                          <div className="flex justify-between bg-gray-800/80 px-3 py-2 rounded border border-gray-700/50">
+                            <span className="text-gray-400">Date:</span>
+                            <span className="font-medium text-white">
+                              Dec 12, 2024
+                            </span>
+                          </div>
+                          <div className="flex justify-between bg-gray-800/80 px-3 py-2 rounded border border-gray-700/50">
+                            <span className="text-gray-400">Category:</span>
+                            <span className="font-medium text-white">
+                              Purchase
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

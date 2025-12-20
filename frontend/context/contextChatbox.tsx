@@ -2,6 +2,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useCompany } from "./contextCompany";
+import { getErrorMessage } from "@/lib/getError";
+import { toast } from "react-toastify";
 
 type ChatboxContextType = {
   messages: Message[];
@@ -9,6 +11,8 @@ type ChatboxContextType = {
   sendMessage: () => Promise<void>;
   input: string;
   setInput: (input: string) => void;
+  loadChatHistory: (chatId: string) => Promise<void>;
+  loadChatHistories: () => Promise<void>;
 };
 
 const ChatboxContext = createContext<ChatboxContextType | undefined>(undefined);
@@ -19,6 +23,14 @@ type Message = {
   text: string;
 };
 
+type ChatHistoryItem = {
+  _id: string;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export function ChatboxProvider({
   children,
 }: Readonly<{
@@ -27,7 +39,10 @@ export function ChatboxProvider({
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingChat, setIsLoadingChat] = useState(false);
   const { selectedCompany, setIsChatting } = useCompany();
+  const [chatHistories, setChatHistories] = useState<ChatHistoryItem[]>([]);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
 
   useEffect(() => {
     setMessages([]);
@@ -38,6 +53,7 @@ export function ChatboxProvider({
     setIsChatting(isLoading);
   }, [isLoading, setIsChatting]);
 
+  // Send message to backend
   const sendMessage = async () => {
     if (!input.trim()) {
       return;
@@ -80,9 +96,57 @@ export function ChatboxProvider({
     }
   };
 
+  //Load chat histories
+  const loadChatHistories = async () => {
+    try {
+      setIsLoadingChat(true);
+      const response = await axios.get("/api/chat/chat-history", {
+        headers: {
+          "X-Active-Company": selectedCompany._id,
+        },
+      });
+      setChatHistories(response.data);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      toast.error(message);
+      console.error(message);
+    } finally {
+      setIsLoadingChat(false);
+    }
+  };
+
+  //Load selected chat history
+  const loadChatHistory = async (chatId: string) => {
+    try {
+      setIsLoadingChat(true);
+      const response = await axios.get(`/api/chat/chat-history/${chatId}`, {
+        headers: {
+          "X-Active-Company": selectedCompany._id,
+        },
+      });
+      setMessages(response.data.messages || []);
+      setCurrentChatId(chatId);
+      setInput("");
+    } catch (error) {
+      const message = getErrorMessage(error);
+      toast.error(message);
+      console.error(message);
+    } finally {
+      setIsLoadingChat(false);
+    }
+  };
+
   return (
     <ChatboxContext.Provider
-      value={{ messages, sendMessage, isLoading, input, setInput }}
+      value={{
+        messages,
+        sendMessage,
+        isLoading,
+        input,
+        setInput,
+        loadChatHistory,
+        loadChatHistories,
+      }}
     >
       {children}
     </ChatboxContext.Provider>

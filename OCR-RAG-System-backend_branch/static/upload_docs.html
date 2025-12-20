@@ -85,6 +85,7 @@
         </div>
     </div>
     <script>
+
         const FASTAPI_PROCESS_URL = "http://127.0.0.1:8000/process-image";
         const dropZone = document.getElementById("dropZone");
         const fileInput = document.getElementById("fileInput");
@@ -118,14 +119,41 @@
                 statusDiv.style.display = 'block';
 
                 if (data.connected) {
+                    // Build History Options
+                    let historyOptions = '';
+                    if (data.history && data.history.length > 0) {
+                        historyOptions = data.history.map(sheet =>
+                            `<option value="${sheet.spreadsheet_id}" ${sheet.spreadsheet_id === data.spreadsheet_id ? 'selected' : ''}>${sheet.spreadsheet_name}</option>`
+                        ).join('');
+                    }
+
                     statusDiv.innerHTML = `
-                        <div style="background: #d1fae5; border: 1px solid #10b981; padding: 15px; border-radius: 8px;">
-                            <p style="color: #065f46; margin: 0;">
-                                ✅ <strong>Google Sheets Connected:</strong> ${data.spreadsheet_name}
-                                <a href="${data.spreadsheet_url}" target="_blank" style="color: #059669; text-decoration: underline; margin-left: 10px;">Open Sheet</a>
-                            </p>
+                        <div style="background: #d1fae5; border: 1px solid #10b981; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <p style="color: #065f46; margin: 0;">
+                                    ✅ <strong>Connected:</strong> ${data.spreadsheet_name}
+                                    <a href="${data.spreadsheet_url}" target="_blank" style="color: #059669; text-decoration: underline; margin-left: 10px;">Open Sheet</a>
+                                </p>
+                                <button onclick="disconnectGoogleSheets()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                                    Disconnect
+                                </button>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px; border-top: 1px solid #a7f3d0; padding-top: 10px;">
+                                <label style="font-size: 13px; color: #065f46;">Switch Sheet:</label>
+                                <select onchange="switchSheet(this.value)" style="padding: 5px; border-radius: 4px; border: 1px solid #10b981; font-size: 13px; max-width: 200px;">
+                                    ${historyOptions}
+                                </select>
+                                <button onclick="createNewSheet()" style="padding: 5px 10px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                                    + New Sheet
+                                </button>
+                            </div>
                         </div>
                     `;
+
+                    // Enable upload
+                    enableUpload(true);
+
                 } else {
                     statusDiv.innerHTML = `
                         <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px;">
@@ -135,36 +163,48 @@
                                     Connect Now
                                 </button>
                             </p>
+                            <p style="color: #92400e; font-size: 12px; margin-top: 5px;">
+                                You must connect Google Sheets to upload documents.
+                            </p>
                         </div>
                     `;
-                }
 
-                // Upload is always enabled (Google Sheets is optional)
-                dropZone.classList.remove('disabled');
-                dropZone.style.pointerEvents = 'auto';
-                dropZone.style.opacity = '1';
-                fileInput.disabled = false;
-                browseBtn.disabled = false;
+                    // Disable upload
+                    enableUpload(false);
+                }
 
             } catch (error) {
                 console.error('Error checking sheets connection:', error);
 
-                // Show error but still allow uploads
+                // On error, assume disconnected/blocked for safety, or show error
                 statusDiv.style.display = 'block';
                 statusDiv.innerHTML = `
-                    <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px;">
-                        <p style="color: #92400e; margin: 0;">
-                            ℹ️ <strong>Google Sheets status unavailable</strong> (Upload still works)
+                    <div style="background: #fee2e2; border: 1px solid #ef4444; padding: 15px; border-radius: 8px;">
+                        <p style="color: #b91c1c; margin: 0;">
+                            ❌ <strong>Connection Error</strong>
+                            <button onclick="checkSheetsConnection()" style="margin-left: 10px; padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">Retry</button>
                         </p>
                     </div>
                 `;
+                enableUpload(false);
+            }
+        }
 
-                // Enable upload even if sheets check fails
+        function enableUpload(enabled) {
+            if (enabled) {
                 dropZone.classList.remove('disabled');
                 dropZone.style.pointerEvents = 'auto';
                 dropZone.style.opacity = '1';
                 fileInput.disabled = false;
                 browseBtn.disabled = false;
+                dropZone.querySelector('h2').innerText = "Drop your file here";
+            } else {
+                dropZone.classList.add('disabled');
+                dropZone.style.pointerEvents = 'none';
+                dropZone.style.opacity = '0.5';
+                fileInput.disabled = true;
+                browseBtn.disabled = true;
+                dropZone.querySelector('h2').innerText = "Connect Sheets to Upload";
             }
         }
 
@@ -172,21 +212,77 @@
         async function connectGoogleSheets() {
             try {
                 const response = await fetch('/api/sheets/connect', {
-                    headers: {
-                        'Authorization': 'Bearer test_token'
-                    }
+                    headers: { 'Authorization': 'Bearer test_token' }
                 });
                 const data = await response.json();
 
                 if (data.auth_url) {
-                    // Redirect to Google OAuth
                     window.location.href = data.auth_url;
                 } else {
-                    alert('Failed to initiate Google OAuth. Please check console for errors.');
+                    alert('Failed to initiate Google OAuth.');
                 }
             } catch (error) {
                 console.error('Error connecting Google Sheets:', error);
-                alert('Failed to connect Google Sheets. Please try again.');
+                alert('Failed to connect Google Sheets.');
+            }
+        }
+
+        async function disconnectGoogleSheets() {
+            if (!confirm("Are you sure you want to disconnect? Uploads will be disabled.")) return;
+
+            try {
+                const response = await fetch('/api/sheets/disconnect', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer test_token' }
+                });
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to disconnect.');
+                }
+            } catch (error) {
+                console.error('Error disconnecting:', error);
+            }
+        }
+
+        async function createNewSheet() {
+            if (!confirm("Create a new Google Sheet? Future uploads will go there.")) return;
+
+            try {
+                const response = await fetch('/api/sheets/create_new_sheet', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer test_token' }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Created new sheet: ${data.sheet_name}`);
+                    window.location.reload();
+                } else {
+                    alert('Failed to create new sheet.');
+                }
+            } catch (error) {
+                console.error('Error creating sheet:', error);
+            }
+        }
+
+        async function switchSheet(sheetId) {
+            try {
+                const response = await fetch('/api/sheets/switch_sheet', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer test_token',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ spreadsheet_id: sheetId })
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to switch sheet.');
+                }
+            } catch (error) {
+                console.error('Error switching sheet:', error);
             }
         }
 
@@ -194,9 +290,7 @@
         async function openUserGoogleSheet() {
             try {
                 const response = await fetch('/api/sheets/status', {
-                    headers: {
-                        'Authorization': 'Bearer test_token'
-                    }
+                    headers: { 'Authorization': 'Bearer test_token' }
                 });
                 const data = await response.json();
                 if (data.connected && data.spreadsheet_url) {
@@ -206,26 +300,23 @@
                 }
             } catch (error) {
                 console.error('Error fetching Google Sheets URL:', error);
-                alert('Failed to open Google Sheets. Please try again.');
+                alert('Failed to open Google Sheets.');
             }
         }
 
-        // Check connection on page load (with timeout to prevent hanging)
+        // Check connection on page load
         window.addEventListener('DOMContentLoaded', () => {
-            // Enable upload immediately
-            dropZone.classList.remove('disabled');
-            dropZone.style.pointerEvents = 'auto';
-            dropZone.style.opacity = '1';
-            fileInput.disabled = false;
-            browseBtn.disabled = false;
+            // Default to disabled until checked
+            enableUpload(false);
 
-            // Check sheets connection in background (non-blocking)
+            // Check sheets connection
             setTimeout(() => {
                 checkSheetsConnection().catch(err => {
                     console.error('Failed to check sheets connection:', err);
                 });
             }, 100);
         });
+
         function updateQueueCount() {
             const count = processingQueue.length;
             document.getElementById('queueCount').textContent = count;

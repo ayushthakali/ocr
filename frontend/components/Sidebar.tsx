@@ -48,6 +48,7 @@ function Sidebar() {
       await axios.post(`/api/auth/logout`, { withCredentials: true });
       toast.success("Logged out successfully!");
       router.push("/auth");
+      sessionStorage.removeItem("Active_Company");
     } catch {
       toast.error("Logout failed!");
     }
@@ -62,8 +63,8 @@ function Sidebar() {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999]">
             <div className="bg-slate-900/90 border border-white/10 rounded-2xl px-8 py-6 flex flex-col items-center gap-4 shadow-2xl">
               <div className="relative">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-blue-500"></div>
-                <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-pulse"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-blue-500" />
+                <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-pulse" />
               </div>
               <div className="text-center">
                 <p className="text-white text-base font-semibold mb-1">
@@ -85,7 +86,7 @@ function Sidebar() {
           <div className="pt-6 px-6 pb-1 flex justify-between items-center ">
             <div>
               <h1 className="text-white text-4xl font-bold tracking-tight font-poppins">
-                AI Receipt
+                Receipt AI
               </h1>
               <p className="text-gray-300 text-xs mt-1">Document Scanner</p>
             </div>

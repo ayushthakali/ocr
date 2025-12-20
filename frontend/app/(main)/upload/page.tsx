@@ -22,6 +22,7 @@ interface SheetStatusResponse {
   spreadsheet_name: string;
   spreadsheet_id: string;
   spreadsheet_url: string;
+  // history: { sheet_id: string; name: string; created_at: string };
 }
 
 export default function Upload() {
@@ -40,13 +41,13 @@ export default function Upload() {
     isUploadDisabled,
   } = useUpload();
   const [isChecking, setIsChecking] = useState(true);
-  const [showSuccess, setShowSuccess] = useState(true);
 
   const [resData, setResData] = useState<SheetStatusResponse>({
     connected: false,
     spreadsheet_name: "",
     spreadsheet_id: "",
     spreadsheet_url: "",
+    // history: { sheet_id: "", name: "", created_at: "" },
   });
 
   // To check connection with sheets
@@ -62,14 +63,7 @@ export default function Upload() {
           },
         });
         setResData(response.data);
-        setTimeout(() => {
-          if (response.data.connected) {
-            setShowSuccess(false);
-          }
-        }, 1000);
-        if (!response.data.connected) {
-          setShowSuccess(true);
-        }
+        console.log(response.data.history);
       } catch (error) {
         console.error("Error checking sheet connection:", error);
         setResData({
@@ -179,14 +173,14 @@ export default function Upload() {
     <section className="min-h-screen">
       <Header title="Upload Document" isGallery={false} />
 
-      <div className="pt-28 pb-12 px-6 ">
-        {showSuccess && (
-          <SheetsConnection
-            resData={resData}
-            isChecking={isChecking}
-            handleConnect={handleConnect}
-          />
-        )}
+      <div className="pt-24 pb-12 px-6 ">
+        <SheetsConnection
+          resData={resData}
+          isChecking={isChecking}
+          handleConnect={handleConnect}
+          setResData={setResData}
+        />
+
         <div className=" max-w-[90vw] mx-auto grid md:grid-cols-2 gap-6">
           {/* Left Column: Upload Area */}
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">

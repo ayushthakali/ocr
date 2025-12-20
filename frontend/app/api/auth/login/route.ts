@@ -54,7 +54,7 @@ export async function POST(req: Request) {
 
     // Sign JWT
     const token = jwt.sign(payload, process.env.JWT_SECRET!, {
-      expiresIn: "7d",
+      expiresIn: "1d",
     });
 
     // Set cookie
@@ -69,7 +69,7 @@ export async function POST(req: Request) {
       secure: process.env.NODE_ENV === "production", // must be true in prod for HTTPS
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // 'none' for cross-site cookies
       path: "/",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
+      maxAge: 24 * 60 * 60, // 1 day
     });
 
     return response;

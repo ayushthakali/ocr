@@ -30,7 +30,7 @@ export function LogoutDialog({ handleClick }: { handleClick: () => void }) {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="bg-gray-900 border border-white/20 shadow-md shadow-purple-400/50 text-white ">
+      <DialogContent className="bg-gray-900 border border-white/20 shadow-md shadow-purple-400/30 text-white ">
         <DialogHeader>
           <DialogTitle>Confirm Log Out?</DialogTitle>
           <DialogDescription className=" text-white">
