@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   CloudUpload,
   FileText,
@@ -16,13 +16,18 @@ import { useCompany } from "@/context/contextCompany";
 import { useUpload } from "@/context/contextUpload";
 import SheetsConnection from "./SheetsConnection";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/lib/getError";
 
 interface SheetStatusResponse {
   connected: boolean;
   spreadsheet_name: string;
   spreadsheet_id: string;
   spreadsheet_url: string;
-  // history: { sheet_id: string; name: string; created_at: string };
+  history: {
+    spreadsheet_id: string;
+    spreadsheet_name: string;
+    spreadsheet_url: string;
+  }[];
 }
 
 export default function Upload() {
@@ -47,39 +52,41 @@ export default function Upload() {
     spreadsheet_name: "",
     spreadsheet_id: "",
     spreadsheet_url: "",
-    // history: { sheet_id: "", name: "", created_at: "" },
+    history: [],
   });
+
+  const checkSheetConnection = useCallback(async () => {
+    if (!selectedCompany?._id) return;
+
+    try {
+      setIsConnectingSheets(true);
+      const response = await axios.get("/api/sheets/status", {
+        headers: {
+          "X-Active-Company": selectedCompany._id,
+        },
+      });
+      setResData(response.data);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      console.error(message, error);
+      setResData({
+        connected: false,
+        spreadsheet_name: "",
+        spreadsheet_id: "",
+        spreadsheet_url: "",
+        history: [],
+      });
+      toast.error(message);
+    } finally {
+      setIsChecking(false);
+      setIsConnectingSheets(false);
+    }
+  }, [selectedCompany, setIsConnectingSheets]);
 
   // To check connection with sheets
   useEffect(() => {
-    const checkSheetConnection = async () => {
-      if (!selectedCompany?._id) return;
-
-      try {
-        setIsConnectingSheets(true);
-        const response = await axios.get("/api/sheets/status", {
-          headers: {
-            "X-Active-Company": selectedCompany._id,
-          },
-        });
-        setResData(response.data);
-        console.log(response.data.history);
-      } catch (error) {
-        console.error("Error checking sheet connection:", error);
-        setResData({
-          connected: false,
-          spreadsheet_name: "",
-          spreadsheet_id: "",
-          spreadsheet_url: "",
-        });
-        toast.error("Failed to check sheet connection.");
-      } finally {
-        setIsChecking(false);
-        setIsConnectingSheets(false);
-      }
-    };
     checkSheetConnection();
-  }, [selectedCompany, setIsConnectingSheets]);
+  }, [checkSheetConnection]);
 
   //Monitor upload queue and unblock company switching when all uploads complete
   useEffect(() => {

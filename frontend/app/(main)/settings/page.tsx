@@ -273,9 +273,19 @@ function Settings() {
                       <DeleteDialog
                         title="Confirm Deletion?"
                         description="Are you sure you want to delete this company?"
-                        handleClick={() =>
-                          handleDeleteCompany(company._id, company.company_name)
-                        }
+                        handleClick={() => {
+                          if (companies.length === 1) {
+                            toast.error(
+                              "Cannot delete this company. You must have at least one company.",
+                              { autoClose: 3000 }
+                            );
+                            return;
+                          }
+                          handleDeleteCompany(
+                            company._id,
+                            company.company_name
+                          );
+                        }}
                       />
                     </div>
                   ))}

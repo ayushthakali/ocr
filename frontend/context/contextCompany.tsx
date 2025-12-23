@@ -150,6 +150,12 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
       await axios.delete(`/api/company/delete-company/${companyId}`);
       toast.success(`Company: ${company_name} deleted successfully`);
       await fetchCompanies();
+      const storedValue = sessionStorage.getItem("Active_Company");
+      const activeCompany = storedValue ? JSON.parse(storedValue) : null;
+      if (activeCompany._id === companyId) {
+        sessionStorage.removeItem("Active_Company");
+      }
+      fetchCompanies();
       return true;
     } catch (err) {
       const message = getErrorMessage(err);

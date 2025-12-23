@@ -245,5 +245,20 @@ class GoogleOAuthService:
             'spreadsheet_url': spreadsheet['spreadsheetUrl'],
             'spreadsheet_name': title
         } 
+    
+    def get_user_info(self, access_token: str) -> Dict[str, str]:
+            """
+            Get Google user info (sub, email) using access token.
+        
+            Args:
+                access_token: Valid OAuth access token
+            
+            Returns:
+                Dictionary with 'id' (sub) and 'email'
+            """
+            credentials = Credentials(token=access_token)
+            service = build('oauth2', 'v2', credentials=credentials)
+            user_info = service.userinfo().get().execute()
+            return user_info
 
     
