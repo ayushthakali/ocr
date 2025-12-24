@@ -14,6 +14,7 @@ import os
 import re
 from app.infrastructure.parser.gemini_rate_limiter import get_rate_limiter, APIProvider
 import logging
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 from dotenv import load_dotenv
 
@@ -29,21 +30,33 @@ class RAGService:
         self.embedding_service = get_embedding_service()
         self.vector_db = get_faiss_service()
         
-        api_key = os.getenv("GROQ_API_KEY")
+        api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            raise ValueError("GROQ_API_KEY not found in environment variables")
+            raise ValueError("GEMINI_API_KEY not found in environment variables")
 
         # Initialize Groq (llama-3.3-70b-versatile)
         # llama-3.1-8b-instant
-        self.llm = ChatGroq(
-            model="llama-3.1-8b-instant",
-            groq_api_key=api_key,
-            temperature=0
+        # self.llm = ChatGroq(
+        #     model="",
+        #     groq_api_key=api_key,
+        #     temperature=0
+        # )
+        
+        self.llm = ChatGoogleGenerativeAI(
+            # model="gemini-3-pro-preview",
+            model = "gemini-2.5-flash",
+            temperature=1.0, 
+            max_tokens=None,
+            timeout=None,
+            max_retries=2,
+           
         )
+
         
         # Initialize Rate Limiter (Separate from Parser)
         # We use a unique name 'groq_chat' to have a separate token bucket
-        self.rate_limiter = get_rate_limiter(name="groq_chat", provider=APIProvider.GROQ)
+        # self.rate_limiter = get_rate_limiter(name="groq_chat", provider=APIProvider.GROQ)
+        self.rate_limiter = get_rate_limiter(name= "gemini" )
     
     def analyze_query_type(self, query: str) -> Tuple[str, bool]:
         """

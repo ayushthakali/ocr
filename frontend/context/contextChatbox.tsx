@@ -50,8 +50,8 @@ export function ChatboxProvider({
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingChat, setIsLoadingChat] = useState(false);
-  const { selectedCompany, setIsChatting } = useCompany();
+  const { selectedCompany, setIsChatting, isLoadingChat, setIsLoadingChat } =
+    useCompany();
   const [chatHistories, setChatHistories] = useState<ChatHistoryItem[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
 
@@ -72,7 +72,7 @@ export function ChatboxProvider({
     } finally {
       setIsLoadingChat(false);
     }
-  }, [selectedCompany._id]);
+  }, [selectedCompany._id, setIsLoadingChat]);
 
   useEffect(() => {
     setMessages([]);
@@ -113,12 +113,12 @@ export function ChatboxProvider({
           }
         );
 
-        setCurrentChatId(response.data._id);
-        setChatHistories((prev) => [response.data, ...prev]);
+        setCurrentChatId(response.data.newChat._id);
+        setChatHistories((prev) => [response.data.newChat, ...prev]);
       } catch (error) {
         const message = getErrorMessage(error);
         toast.error("Failed to create chat: " + message);
-        return; // Don't send message if chat creation failed
+        return;
       }
     }
 
@@ -128,7 +128,8 @@ export function ChatboxProvider({
       text: currentInput,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInput("");
 
     // API Call
@@ -144,8 +145,9 @@ export function ChatboxProvider({
         text: aiRes.data,
       };
 
-      setMessages((prev) => [...prev, aiMessage]);
-      saveChatHistory();
+      const updatedMessages = [...newMessages, aiMessage];
+      setMessages(updatedMessages);
+      await saveChatHistory(updatedMessages);
     } catch (err) {
       console.error("API Error: ", err);
       const errorMessage: Message = {
@@ -159,11 +161,86 @@ export function ChatboxProvider({
     }
   };
 
+  // Save chat history
+  const saveChatHistory = useCallback(
+    async (messagesToSave?: Message[]) => {
+      const messagesToUse = messagesToSave || messages;
+      // Check if we have a chat to save
+      if (!currentChatId || messages.length === 0) return;
+
+      // Check if chat still exists
+      const currentChat = chatHistories.find((c) => c._id === currentChatId);
+      if (!currentChat) {
+        console.log("Chat no longer exists, skipping save");
+        return;
+      }
+
+      try {
+        // Generate title from first user message if needed
+        const firstUserMessage = messages.find((m) => m.sender === "user");
+        let title: string;
+
+        if (currentChat?.title === "New Chat" && firstUserMessage) {
+          // Generate new title from first message
+          title =
+            firstUserMessage.text.substring(0, 50) +
+            (firstUserMessage.text.length > 50 ? "..." : "");
+        } else {
+          title = currentChat?.title || "New Chat";
+        }
+
+        const response = await axios.patch(
+          `/api/chat/chat-history/${currentChatId}`,
+          { title, messages: messagesToUse },
+          {
+            headers: {
+              "X-Active-Company": selectedCompany._id,
+            },
+          }
+        );
+        setChatHistories((prev) =>
+          prev.map((chat) =>
+            chat._id === currentChatId
+              ? {
+                  ...chat,
+                  title: response.data.title,
+                  messages: response.data.messages,
+                  updatedAt: response.data.updatedAt,
+                }
+              : chat
+          )
+        );
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          console.log("Chat was deleted, removing from local state");
+          setChatHistories((prev) =>
+            prev.filter((c) => c._id !== currentChatId)
+          );
+          setCurrentChatId(null);
+        } else {
+          console.error("Error saving chat:", error);
+        }
+      }
+    },
+    [
+      currentChatId,
+      messages,
+      chatHistories,
+      selectedCompany._id,
+      setChatHistories,
+    ]
+  );
+
   //Load selected chat history
   const loadChatHistory = useCallback(
     async (chatId: string) => {
       try {
         setIsLoadingChat(true);
+        // Save current chat before switching
+        if (currentChatId && messages.length > 0) {
+          await saveChatHistory();
+        }
+
         const response = await axios.get(`/api/chat/chat-history/${chatId}`, {
           headers: {
             "X-Active-Company": selectedCompany._id,
@@ -175,19 +252,30 @@ export function ChatboxProvider({
         setInput("");
       } catch (error) {
         const message = getErrorMessage(error);
-        toast.error(message);
         console.error(message);
       } finally {
         setIsLoadingChat(false);
       }
     },
-    [selectedCompany._id]
+    [
+      selectedCompany._id,
+      currentChatId,
+      messages,
+      saveChatHistory,
+      setIsLoadingChat,
+    ]
   );
 
   // Create new chat
   const createNewChat = useCallback(async () => {
     try {
       setIsLoadingChat(true);
+
+      // Save current chat before creating new one
+      if (currentChatId && messages.length > 0) {
+        await saveChatHistory();
+      }
+
       const response = await axios.post(
         "/api/chat/chat-history",
         {
@@ -200,11 +288,18 @@ export function ChatboxProvider({
           },
         }
       );
-      toast.success("New chat created.");
-      setCurrentChatId(response.data._id);
+      const deletedChatTitle = response.data.deletedChatTitle;
+      toast.success(
+        deletedChatTitle
+          ? `New chat created. Oldest chat "${deletedChatTitle}" was removed.`
+          : "New chat created",
+        { autoClose: 2000 }
+      );
+
+      setCurrentChatId(response.data.newChat._id);
       setMessages([]);
       setInput("");
-      setChatHistories((prev) => [response.data, ...prev]);
+      await loadChatHistories();
     } catch (error) {
       const message = getErrorMessage(error);
       toast.error(message);
@@ -212,64 +307,13 @@ export function ChatboxProvider({
     } finally {
       setIsLoadingChat(false);
     }
-  }, [selectedCompany._id, setChatHistories]);
-
-  // Save chat history
-  const saveChatHistory = useCallback(async () => {
-    // Check if we have a chat to save
-    if (!currentChatId || messages.length === 0) return;
-
-    try {
-      // Find current chat to check title
-      const currentChat = chatHistories.find(
-        (chat) => chat._id === currentChatId
-      );
-
-      // Generate title from first user message if needed
-      const firstUserMessage = messages.find((m) => m.sender === "user");
-      let title: string;
-
-      if (currentChat?.title === "New Chat" && firstUserMessage) {
-        // Generate new title from first message
-        title =
-          firstUserMessage.text.substring(0, 50) +
-          (firstUserMessage.text.length > 50 ? "..." : "");
-      } else {
-        title = currentChat?.title || "New Chat";
-      }
-      // console.log(title);
-
-      const response = await axios.patch(
-        `/api/chat/chat-history/${currentChatId}`,
-        { title, messages },
-        {
-          headers: {
-            "X-Active-Company": selectedCompany._id,
-          },
-        }
-      );
-      setChatHistories((prev) =>
-        prev.map((chat) =>
-          chat._id === currentChatId
-            ? {
-                ...chat,
-                title: response.data.title,
-                messages: response.data.messages,
-                updatedAt: response.data.updatedAt,
-              }
-            : chat
-        )
-      );
-    } catch (error) {
-      const message = getErrorMessage(error);
-      console.error(message);
-    }
   }, [
+    selectedCompany._id,
+    loadChatHistories,
     currentChatId,
     messages,
-    chatHistories,
-    selectedCompany._id,
-    setChatHistories,
+    saveChatHistory,
+    setIsLoadingChat,
   ]);
 
   // Delete a chat history
@@ -298,7 +342,7 @@ export function ChatboxProvider({
         setIsLoadingChat(false);
       }
     },
-    [selectedCompany._id, currentChatId, setChatHistories]
+    [selectedCompany._id, currentChatId, setChatHistories, setIsLoadingChat]
   );
 
   return (

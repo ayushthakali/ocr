@@ -46,6 +46,7 @@ export default function Upload() {
     isUploadDisabled,
   } = useUpload();
   const [isChecking, setIsChecking] = useState(true);
+  const [isSwitching, setIsSwitching] = useState(false);
 
   const [resData, setResData] = useState<SheetStatusResponse>({
     connected: false,
@@ -103,6 +104,7 @@ export default function Upload() {
       const response = await axios.get("/api/sheets/connect", {
         headers: {
           "X-Active-Company": selectedCompany._id,
+          "X-Company-Name": selectedCompany.company_name,
         },
       });
       if (response.data.auth_url) {
@@ -186,6 +188,8 @@ export default function Upload() {
           isChecking={isChecking}
           handleConnect={handleConnect}
           setResData={setResData}
+          isSwitching={isSwitching}
+          setIsSwitching={setIsSwitching}
         />
 
         <div className=" max-w-[90vw] mx-auto grid md:grid-cols-2 gap-6">
@@ -216,7 +220,7 @@ export default function Upload() {
             )}
 
             {/* Drop Area */}
-            {!isChecking && resData.connected && (
+            {!isChecking && resData.connected && !isSwitching && (
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}

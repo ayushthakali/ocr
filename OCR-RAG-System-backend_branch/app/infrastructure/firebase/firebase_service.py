@@ -195,3 +195,45 @@ class FirebaseService:
                         )
                         await loop.run_in_executor(None, ref_to_delete.delete)
                         break
+
+    async def get_next_sheet_number_async(self, user_id: str, company_id: str) -> int:
+        """
+        Get the next sheet number for the user and company.
+        Increments the counter at: users/{user_id}/companies/{company_id}/sheet_counter
+        Returns the new number.
+        """
+        loop = asyncio.get_event_loop()
+        ref = self.db.reference(f"users/{user_id}/companies/{company_id}/sheet_counter")
+
+        def transaction_func(current_value):
+            if current_value is None:
+                return 1
+            return current_value + 1
+
+        # Run transaction
+        new_val = await loop.run_in_executor(
+            None, lambda: ref.transaction(transaction_func)
+        )
+        return new_val
+
+    async def get_next_document_number_async(
+        self, user_id: str, company_id: str, doc_prefix: str
+    ) -> int:
+        """
+        Get the next number for a specific document type (prefix).
+        Increments: users/{user_id}/companies/{company_id}/counters/{doc_prefix}
+        """
+        loop = asyncio.get_event_loop()
+        ref = self.db.reference(
+            f"users/{user_id}/companies/{company_id}/counters/{doc_prefix}"
+        )
+
+        def transaction_func(current_value):
+            if current_value is None:
+                return 1
+            return current_value + 1
+
+        new_val = await loop.run_in_executor(
+            None, lambda: ref.transaction(transaction_func)
+        )
+        return new_val

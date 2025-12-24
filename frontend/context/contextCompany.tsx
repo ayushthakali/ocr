@@ -22,6 +22,7 @@ interface CompanyContextType {
   companies: Company[];
   selectedCompany: Company;
   isLoading: boolean;
+  isLoadingChat: boolean;
   isUploading: boolean;
   isSwitching: boolean;
   isPerformingTask: boolean;
@@ -32,6 +33,7 @@ interface CompanyContextType {
     pan_no: string;
   }) => Promise<boolean>;
   setIsChatting: (isChatting: boolean) => void;
+  setIsLoadingChat: (LoadingChat: boolean) => void;
   setIsUploading: (isUploading: boolean) => void;
   setIsConnectingSheets: (isConnectingSheets: boolean) => void;
   setIsGalleryLoading: (isGalleryLoading: boolean) => void;
@@ -56,6 +58,7 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
   const [isGalleryLoading, setIsGalleryLoading] = useState<boolean>(false);
   const [isPerformingTask, setIsPerformingTask] = useState<boolean>(false);
   const [isSheetsLoading, setIsSheetsLoading] = useState<boolean>(false);
+  const [isLoadingChat, setIsLoadingChat] = useState(false);
 
   const fetchCompanies = useCallback(async () => {
     try {
@@ -85,7 +88,8 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
         isUploading ||
         isGalleryLoading ||
         isConnectingSheets ||
-        isSheetsLoading
+        isSheetsLoading ||
+        isLoadingChat
       ) {
         console.warn("Company switch blocked - another operation in progress.");
         toast.warning("Please wait for the current operation to complete.");
@@ -112,7 +116,8 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
       isGalleryLoading,
       isConnectingSheets,
       isSheetsLoading,
-    ] // FIXED: Include all deps
+      isLoadingChat,
+    ]
   );
 
   const addCompany = async (companyData: {
@@ -176,6 +181,7 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
         companies,
         selectedCompany,
         isLoading,
+        isLoadingChat,
         isSwitching,
         isUploading,
         isPerformingTask,
@@ -184,6 +190,7 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
         addCompany,
         deleteCompany,
         setIsChatting,
+        setIsLoadingChat,
         setIsUploading,
         setIsGalleryLoading,
         setIsConnectingSheets,

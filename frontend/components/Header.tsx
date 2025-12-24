@@ -73,7 +73,7 @@ function Header({
           )}
         </button>
       </div>
-      {isGallery && (
+      {/* {isGallery && (
         <div className="flex items-center gap-2 w-1/2">
           <Search className="text-gray-300 " />
           <input
@@ -82,7 +82,7 @@ function Header({
             className="w-full max-w-xl px-4 py-1 bg-gray-800 border border-white/20 rounded-4xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/60 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
-      )}
+      )} */}
     </header>
   );
 }

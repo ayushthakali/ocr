@@ -12,7 +12,10 @@ export async function GET(req: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Get selected company from headers
     const selectedCompany = req.headers.get("X-Active-Company") || "";
+    const companyName = req.headers.get("X-Company-Name") || "";
 
     const response = await axios.get(
       "http://localhost:8000/api/sheets/connect",
@@ -20,6 +23,7 @@ export async function GET(req: NextRequest) {
         headers: {
           Authorization: `Bearer ${token}`,
           "X-Active-Company": selectedCompany,
+          "X-Company-Name": companyName,
         },
       }
     );

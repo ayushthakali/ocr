@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,20 +21,24 @@ export function DialogComp({
   classname,
   isLoading,
   loadingText,
-}: //   icon,
-{
+}: {
   title: string;
   description: string;
-  handleClick: () => void;
+  handleClick: () => Promise<void>;
   action: string;
   classname: string;
   isLoading: boolean;
   loadingText: string;
-  //   icon: LucideIcon;
 }) {
-  //   const Icon = icon;
+  const [open, setOpen] = useState(false);
+
+  const handleConfirm = async () => {
+    await handleClick();
+    setOpen(false);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" className={classname}>
           {/* <Icon className="w-5 h-5" /> */}
@@ -59,7 +66,7 @@ export function DialogComp({
           </DialogClose>
           <Button
             variant="destructive"
-            onClick={handleClick}
+            onClick={handleConfirm}
             className={classname}
             disabled={isLoading}
           >

@@ -3,6 +3,7 @@
 import { Plus, Clock, MessageSquare, Loader2 } from "lucide-react";
 import { DeleteDialog } from "@/components/DeleteDialog";
 import { useChatbox } from "@/context/contextChatbox";
+import { useCompany } from "@/context/contextCompany";
 
 export default function ChatHistorySidebar() {
   const {
@@ -11,8 +12,8 @@ export default function ChatHistorySidebar() {
     currentChatId,
     deleteChat,
     loadChatHistory,
-    isLoadingChat, 
   } = useChatbox();
+  const { isLoadingChat } = useCompany();
 
   const formatDate = (date: Date) => {
     const d = new Date(date);

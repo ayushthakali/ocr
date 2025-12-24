@@ -226,7 +226,7 @@ class GoogleOAuthService:
                             {'userEnteredValue': {'stringValue': 'Type'}},
                             {'userEnteredValue': {'stringValue': 'Description'}},
                             {'userEnteredValue': {'stringValue': 'Total Amount'}},
-                            {'userEnteredValue': {'stringValue': 'Document Key'}}
+                            # {'userEnteredValue': {'stringValue': 'Document Key'}}
                         ]
                     }],
                     'fields': 'userEnteredValue'

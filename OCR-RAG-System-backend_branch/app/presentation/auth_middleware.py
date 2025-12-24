@@ -43,7 +43,7 @@ async def get_current_user(
         # Add active company and company name to the payload
         payload["activeCompany"] = x_active_company
         payload["companyName"] = x_company_name
-
+        # print(payload)
         return payload
 
     except jwt.ExpiredSignatureError:

@@ -36,11 +36,15 @@ function SheetsConnection({
   setResData,
   isChecking,
   handleConnect,
+  isSwitching,
+  setIsSwitching,
 }: {
   resData: SheetStatusResponse;
   setResData: (resData: SheetStatusResponse) => void;
   isChecking: boolean;
   handleConnect: () => void;
+  isSwitching: boolean;
+  setIsSwitching: (isSwitching: boolean) => void;
 }) {
   const [isSheetsDropdownOpen, setIsSheetsDropdownOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -50,7 +54,6 @@ function SheetsConnection({
     spreadsheet_name: "",
     spreadsheet_url: "",
   });
-  const [isSwitching, setIsSwitching] = useState(false);
 
   useEffect(() => {
     setSelectedSheet({
@@ -64,12 +67,34 @@ function SheetsConnection({
   const createNewSheet = async () => {
     try {
       setIsProcessing(true);
-      await axios.post("/api/sheets/create-new-sheet", null, {
+      const response = await axios.post("/api/sheets/create-new-sheet", null, {
+        headers: {
+          "X-Active-Company": selectedCompany._id,
+          "X-Company-Name": selectedCompany.company_name,
+        },
+      });
+      toast.success(
+        `New sheet: ${response.data.sheet_name} created successfully.`
+      );
+
+      //Reupdate the sheets UI
+      const statusResponse = await axios.get("/api/sheets/status", {
         headers: {
           "X-Active-Company": selectedCompany._id,
         },
       });
-      toast.success(`New sheet created successfully.`);
+
+      // Update resData with fresh data from backend
+      setResData(statusResponse.data);
+
+      // Update selected sheet if backend returns the new sheet info
+      if (response.data) {
+        setSelectedSheet({
+          spreadsheet_id: response.data.spreadsheet_id,
+          spreadsheet_name: response.data.spreadsheet_name,
+          spreadsheet_url: response.data.spreadsheet_url,
+        });
+      }
     } catch (error) {
       const message = getErrorMessage(error);
       console.error(message, error);

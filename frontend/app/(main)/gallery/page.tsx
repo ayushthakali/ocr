@@ -145,8 +145,8 @@ function Gallery() {
   return (
     <section>
       <Header title="Gallery" isGallery />
-
-      <div className="pt-36 px-4 pb-6">
+{/* pt-36 */}
+      <div className="pt-24 px-4 pb-6"> 
         {/* Filter part */}
         <div className="flex flex-wrap bg-white/10 border border-white/20 rounded-xl w-full justify-between items-center mb-4 p-2.5 gap-4">
           <form className="flex gap-8 items-center" onSubmit={handleSearch}>

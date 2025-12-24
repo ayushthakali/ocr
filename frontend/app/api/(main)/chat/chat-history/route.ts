@@ -65,14 +65,16 @@ export async function POST(request: Request) {
     });
 
     // Delete oldest chat if more than 6 chats
+    let deletedChatTitle: null | string = null;
     if (existingChatsCount >= 6) {
       const oldestChat = await ChatHistory.findOne({
         company_id: selectedCompany,
       })
         .sort({ updatedAt: 1 })
-        .select("_id");
+        .select("_id title");
 
       if (oldestChat) {
+        deletedChatTitle = oldestChat.title;
         await ChatHistory.findByIdAndDelete(oldestChat._id);
         console.log(`Deleted oldest chat: ${oldestChat._id}`);
       }
@@ -85,7 +87,13 @@ export async function POST(request: Request) {
       messages: messages || [],
     });
 
-    return NextResponse.json(newChat, { status: 201 });
+    return NextResponse.json(
+      {
+        newChat,
+        deletedChatTitle,
+      },
+      { status: 201 }
+    );
   } catch (err) {
     console.error("Error creating new chat", err);
     return NextResponse.json(

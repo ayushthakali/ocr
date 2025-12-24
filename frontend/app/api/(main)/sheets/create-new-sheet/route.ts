@@ -12,7 +12,10 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Get selected company from headers
     const selectedCompany = req.headers.get("X-Active-Company") || "";
+    const companyName = req.headers.get("X-Company-Name") || "";
 
     const response = await axios.post(
       "http://localhost:8000/api/sheets/create_new_sheet",
@@ -21,6 +24,7 @@ export async function POST(req: NextRequest) {
         headers: {
           Authorization: `Bearer ${token}`,
           "X-Active-Company": selectedCompany,
+          "X-Company-Name": companyName,  
         },
       }
     );

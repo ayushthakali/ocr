@@ -9,8 +9,11 @@ import ChatHistorySidebar from "@/app/(main)/chat/ChatHistorySidebar";
 
 function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, sendMessage, setInput, input } = useChatbox();
 
+  const { messages, isLoading, sendMessage, setInput, input, isLoadingChat } =
+    useChatbox();
+
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -30,10 +33,21 @@ function Chat() {
         {/* Sidebar */}
         <ChatHistorySidebar />
 
-        {/* Chat messages area */}
+        {/* Chat container */}
         <div className="w-full flex flex-col items-center justify-start flex-1">
-          <div className="w-full max-w-4xl flex-1 rounded-xl overflow-y-auto px-2 scrollbar-hid">
-            {messages.length == 0 ? (
+          {/* Messages area */}
+          <div className="relative w-full max-w-4xl flex-1 rounded-xl overflow-y-auto px-2 scrollbar-hid">
+            {/* Chat loading overlay */}
+            {isLoadingChat && (
+              <div className="absolute inset-0 z-20 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f0f] to-[#0f0a10] flex items-center justify-center rounded-xl transition-opacity">
+                <div className="flex flex-col items-center gap-3 text-white">
+                  <Loader2 className="w-12 h-12 animate-spin" />
+                  <p className="text-xl text-white/80">Loading chat…</p>
+                </div>
+              </div>
+            )}
+
+            {messages.length === 0 ? (
               <div className="h-full flex items-center justify-center text-white/70 text-center">
                 <div>
                   <p className="text-lg mb-2">Welcome to RAG Chat!</p>
@@ -55,7 +69,7 @@ function Chat() {
                       className={`p-2 rounded-2xl ${
                         m.sender === "user"
                           ? "bg-white/10 text-white border border-white/20 rounded-br-sm max-w-[80%]"
-                          : "text-white "
+                          : "text-white"
                       }`}
                     >
                       {m.sender === "ai" ? (
@@ -95,6 +109,8 @@ function Chat() {
                     </div>
                   </div>
                 ))}
+
+                {/* Inline thinking indicator */}
                 {isLoading && (
                   <div className="flex justify-start">
                     <div className="max-w-[80%] p-2 rounded-2xl bg-white/10 text-white border border-white/20 rounded-bl-sm">
@@ -105,21 +121,22 @@ function Chat() {
                     </div>
                   </div>
                 )}
+
                 <div ref={messagesEndRef} />
               </div>
             )}
           </div>
 
-          {/* Chat bar */}
-          <div className="relative w-full max-w-3xl ">
+          {/* Chat input bar */}
+          <div className="relative w-full max-w-3xl">
             <input
               type="text"
               value={input}
-              disabled={isLoading}
+              disabled={isLoading || isLoadingChat}
               onKeyDown={handleKeyPress}
               onChange={(e) => setInput(e.target.value)}
               placeholder={
-                isLoading
+                isLoading || isLoadingChat
                   ? "Please wait..."
                   : "Ask anything about your receipt..."
               }
@@ -128,11 +145,11 @@ function Chat() {
 
             <button
               onClick={() => sendMessage()}
-              disabled={isLoading}
+              disabled={isLoading || isLoadingChat}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center bg-gray-800 hover:bg-gray-700 peer-focus:bg-white/80 transition-all text-white peer-focus:text-black"
             >
               {!isLoading ? (
-                <ArrowUp className="w-4 h-4 " />
+                <ArrowUp className="w-4 h-4" />
               ) : (
                 <div className="bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center">
                   <Square className="w-2 h-2 bg-white/90" />
