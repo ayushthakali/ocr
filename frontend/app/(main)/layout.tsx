@@ -5,6 +5,8 @@ import Sidebar from "@/components/Sidebar";
 import { ChatboxProvider } from "@/context/contextChatbox";
 import { CompanyProvider } from "@/context/contextCompany";
 import { UploadProvider } from "@/context/contextUpload";
+import { GalleryProvider } from "@/context/contextGallery";
+import { SheetsProvider } from "@/context/contextSheetsConnection";
 
 export default function MainLayout({
   children,
@@ -18,14 +20,18 @@ export default function MainLayout({
       <CompanyProvider>
         <ChatboxProvider>
           <UploadProvider>
-            <Sidebar />
-            <main
-              className={`transition-all duration-300 ${
-                isOpen ? "ml-72" : "ml-22"
-              }`}
-            >
-              {children}
-            </main>
+            <SheetsProvider>
+              <GalleryProvider>
+                <Sidebar />
+                <main
+                  className={`transition-all duration-300 ${
+                    isOpen ? "ml-72" : "ml-22"
+                  }`}
+                >
+                  {children}
+                </main>
+              </GalleryProvider>
+            </SheetsProvider>
           </UploadProvider>
         </ChatboxProvider>
       </CompanyProvider>

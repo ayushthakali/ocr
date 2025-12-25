@@ -6,159 +6,27 @@ import {
   ChevronDown,
   Loader2,
 } from "lucide-react";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useCompany } from "@/context/contextCompany";
-import { toast } from "react-toastify";
-import { getErrorMessage } from "@/lib/getError";
+import { useState } from "react";
 import { DialogComp } from "@/components/Dialog";
+import { useSheets } from "@/context/contextSheetsConnection";
 
-interface SheetStatusResponse {
-  connected: boolean;
-  spreadsheet_name: string;
-  spreadsheet_id: string;
-  spreadsheet_url: string;
-  history: {
-    spreadsheet_id: string;
-    spreadsheet_name: string;
-    spreadsheet_url: string;
-  }[];
-}
-
-interface Sheet {
-  spreadsheet_name: string;
-  spreadsheet_id: string;
-  spreadsheet_url: string;
-}
-
-function SheetsConnection({
-  resData,
-  setResData,
-  isChecking,
-  handleConnect,
-  isSwitching,
-  setIsSwitching,
-}: {
-  resData: SheetStatusResponse;
-  setResData: (resData: SheetStatusResponse) => void;
-  isChecking: boolean;
-  handleConnect: () => void;
-  isSwitching: boolean;
-  setIsSwitching: (isSwitching: boolean) => void;
-}) {
+function SheetsConnection() {
+  const {
+    resData,
+    handleConnect,
+    isChecking,
+    switchSheet,
+    selectedSheet,
+    isSwitching,
+    isProcessing,
+    createNewSheet,
+    disconnectSheet,
+  } = useSheets();
   const [isSheetsDropdownOpen, setIsSheetsDropdownOpen] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const { selectedCompany } = useCompany();
-  const [selectedSheet, setSelectedSheet] = useState<Sheet>({
-    spreadsheet_id: "",
-    spreadsheet_name: "",
-    spreadsheet_url: "",
-  });
-
-  useEffect(() => {
-    setSelectedSheet({
-      spreadsheet_id: resData.spreadsheet_id,
-      spreadsheet_name: resData.spreadsheet_name,
-      spreadsheet_url: resData.spreadsheet_url,
-    });
-  }, [resData]);
-
-  // Create new sheet
-  const createNewSheet = async () => {
-    try {
-      setIsProcessing(true);
-      const response = await axios.post("/api/sheets/create-new-sheet", null, {
-        headers: {
-          "X-Active-Company": selectedCompany._id,
-          "X-Company-Name": selectedCompany.company_name,
-        },
-      });
-      toast.success(
-        `New sheet: ${response.data.sheet_name} created successfully.`
-      );
-
-      //Reupdate the sheets UI
-      const statusResponse = await axios.get("/api/sheets/status", {
-        headers: {
-          "X-Active-Company": selectedCompany._id,
-        },
-      });
-
-      // Update resData with fresh data from backend
-      setResData(statusResponse.data);
-
-      // Update selected sheet if backend returns the new sheet info
-      if (response.data) {
-        setSelectedSheet({
-          spreadsheet_id: response.data.spreadsheet_id,
-          spreadsheet_name: response.data.spreadsheet_name,
-          spreadsheet_url: response.data.spreadsheet_url,
-        });
-      }
-    } catch (error) {
-      const message = getErrorMessage(error);
-      console.error(message, error);
-      toast.error(message);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Disconnect sheet
-  const disconnectSheet = async () => {
-    try {
-      setIsProcessing(true);
-      await axios.post("/api/sheets/disconnect-sheet", null, {
-        headers: {
-          "X-Active-Company": selectedCompany._id,
-        },
-      });
-      toast.success("Sheet disconnected successfully.");
-      setResData({
-        connected: false,
-        spreadsheet_name: "",
-        spreadsheet_id: "",
-        spreadsheet_url: "",
-        history: [],
-      });
-    } catch (error) {
-      const message = getErrorMessage(error);
-      console.error(message, error);
-      toast.error(message);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Switch google sheets
-  const switchSheet = async (sheet: Sheet) => {
-    if (sheet.spreadsheet_id === selectedSheet.spreadsheet_id) {
-      toast.info("This sheet is already active");
-      return;
-    }
-    try {
-      setIsSwitching(true);
-      const response = await axios.post(
-        `/api/sheets/switch-sheet`,
-        { spreadsheet_id: sheet.spreadsheet_id },
-        {
-          headers: {
-            "X-Active-Company": selectedCompany._id,
-          },
-        }
-      );
-      setSelectedSheet(sheet);
-      toast.success(`Switched to ${response.data.sheet_name}`);
-    } catch (error) {
-      console.error("Error switching sheets:", error);
-      toast.error("Failed to switch sheets. Please try again.");
-    } finally {
-      setIsSwitching(false);
-    }
-  };
 
   return (
     <div className="relative z-10 text-white mb-8 w-full">
+      {/* First check */}
       {isChecking && (
         <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-6 shadow-xl">
           <div className="flex items-center justify-between">
@@ -192,6 +60,7 @@ function SheetsConnection({
         </div>
       )}
 
+      {/* Connected */}
       {!isChecking && resData.connected && (
         <div className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 backdrop-blur-sm border border-emerald-500/20 rounded-2xl p-6 shadow-xl">
           <div className="space-y-4">
@@ -310,6 +179,7 @@ function SheetsConnection({
         </div>
       )}
 
+      {/* No Connection */}
       {!isChecking && !resData.connected && (
         <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 backdrop-blur-sm border border-orange-500/20 rounded-2xl p-6 shadow-xl">
           <div className="space-y-4">
@@ -360,7 +230,7 @@ function SheetsConnection({
             {/* Connection info box */}
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 py-2">
               <p className="text-sm text-white/70 leading-relaxed">
-                Once connected, you'll be able to select sheets, create new
+                Once connected, you&apos;ll be able to select sheets, create new
                 ones, and sync your data in real-time.
               </p>
             </div>

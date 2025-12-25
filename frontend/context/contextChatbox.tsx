@@ -26,8 +26,6 @@ type ChatboxContextType = {
   currentChatId: string | null;
 };
 
-const ChatboxContext = createContext<ChatboxContextType | undefined>(undefined);
-
 type Message = {
   id: string;
   sender: "user" | "ai";
@@ -42,6 +40,8 @@ type ChatHistoryItem = {
   updatedAt: Date;
 };
 
+const ChatboxContext = createContext<ChatboxContextType | undefined>(undefined);
+
 export function ChatboxProvider({
   children,
 }: Readonly<{
@@ -50,10 +50,10 @@ export function ChatboxProvider({
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { selectedCompany, setIsChatting, isLoadingChat, setIsLoadingChat } =
-    useCompany();
   const [chatHistories, setChatHistories] = useState<ChatHistoryItem[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const { selectedCompany, setIsChatting, isLoadingChat, setIsLoadingChat } =
+    useCompany();
 
   //Load chat histories
   const loadChatHistories = useCallback(async () => {
@@ -361,6 +361,7 @@ export function ChatboxProvider({
     },
     [selectedCompany._id, currentChatId, setChatHistories, setIsLoadingChat]
   );
+
   return (
     <ChatboxContext.Provider
       value={{

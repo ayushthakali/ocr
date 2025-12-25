@@ -70,7 +70,7 @@ export default function ChatHistorySidebar() {
   const hasNoChats = chatHistories.length === 0;
 
   return (
-    <div className="w-64 backdrop-blur-sm p-2 flex flex-col h-full border-r border-white/10">
+    <div className="w-64 backdrop-blur-sm p-2 flex flex-col h-full ">
       {/* New Chat Button */}
       <button
         onClick={createNewChat}

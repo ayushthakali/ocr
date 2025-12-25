@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   CloudUpload,
   FileText,
@@ -10,34 +10,16 @@ import {
   AlertCircle,
   AlertTriangle,
 } from "lucide-react";
-import axios from "axios";
 import Header from "@/components/Header";
 import { useCompany } from "@/context/contextCompany";
 import { useUpload } from "@/context/contextUpload";
+import { useSheets } from "@/context/contextSheetsConnection";
+import { useGallery } from "@/context/contextGallery";
 import SheetsConnection from "./SheetsConnection";
-import { toast } from "react-toastify";
-import { getErrorMessage } from "@/lib/getError";
-
-interface SheetStatusResponse {
-  connected: boolean;
-  spreadsheet_name: string;
-  spreadsheet_id: string;
-  spreadsheet_url: string;
-  history: {
-    spreadsheet_id: string;
-    spreadsheet_name: string;
-    spreadsheet_url: string;
-  }[];
-}
 
 export default function Upload() {
   const [isDragging, setIsDragging] = useState(false);
-  const {
-    selectedCompany,
-    setIsUploading,
-    isUploading,
-    setIsConnectingSheets,
-  } = useCompany();
+  const { selectedCompany, setIsUploading, isUploading } = useCompany();
   const {
     processingQueue,
     errorMessage,
@@ -45,82 +27,17 @@ export default function Upload() {
     processFiles,
     isUploadDisabled,
   } = useUpload();
-  const [isChecking, setIsChecking] = useState(true);
-  const [isSwitching, setIsSwitching] = useState(false);
-
-  const [resData, setResData] = useState<SheetStatusResponse>({
-    connected: false,
-    spreadsheet_name: "",
-    spreadsheet_id: "",
-    spreadsheet_url: "",
-    history: [],
-  });
-
-  const checkSheetConnection = useCallback(async () => {
-    if (!selectedCompany?._id) return;
-
-    try {
-      setIsConnectingSheets(true);
-      const response = await axios.get("/api/sheets/status", {
-        headers: {
-          "X-Active-Company": selectedCompany._id,
-        },
-      });
-      setResData(response.data);
-    } catch (error) {
-      const message = getErrorMessage(error);
-      console.error(message, error);
-      setResData({
-        connected: false,
-        spreadsheet_name: "",
-        spreadsheet_id: "",
-        spreadsheet_url: "",
-        history: [],
-      });
-      toast.error(message);
-    } finally {
-      setIsChecking(false);
-      setIsConnectingSheets(false);
-    }
-  }, [selectedCompany, setIsConnectingSheets]);
-
-  // To check connection with sheets
-  useEffect(() => {
-    checkSheetConnection();
-  }, [checkSheetConnection]);
+  const { isChecking, resData, handleConnect, isSwitching } = useSheets();
+  const { refreshGallery } = useGallery();
 
   //Monitor upload queue and unblock company switching when all uploads complete
   useEffect(() => {
     if (isUploading && processingQueue.length === 0) {
       setIsUploading(false);
+      // Refresh gallery after all uploads complete
+      refreshGallery();
     }
-  }, [processingQueue, isUploading, setIsUploading]);
-
-  // Connection to google sheets
-  const handleConnect = async () => {
-    try {
-      setIsConnectingSheets(true);
-      setIsChecking(true);
-      const response = await axios.get("/api/sheets/connect", {
-        headers: {
-          "X-Active-Company": selectedCompany._id,
-          "X-Company-Name": selectedCompany.company_name,
-        },
-      });
-      if (response.data.auth_url) {
-        // Redirect to Google OAuth
-        window.location.href = response.data.auth_url;
-      } else {
-        toast.error("Failed to initiate Google OAuth.");
-      }
-    } catch (error) {
-      console.error("Error connecting Google Sheets:", error);
-      toast.error("Failed to connect Google Sheets. Please try again.");
-    } finally {
-      setIsChecking(false);
-      setIsConnectingSheets(false);
-    }
-  };
+  }, [processingQueue, isUploading, setIsUploading, refreshGallery]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -183,14 +100,7 @@ export default function Upload() {
       <Header title="Upload Document" isGallery={false} />
 
       <div className="pt-24 pb-12 px-6 ">
-        <SheetsConnection
-          resData={resData}
-          isChecking={isChecking}
-          handleConnect={handleConnect}
-          setResData={setResData}
-          isSwitching={isSwitching}
-          setIsSwitching={setIsSwitching}
-        />
+        <SheetsConnection />
 
         <div className=" max-w-[90vw] mx-auto grid md:grid-cols-2 gap-6">
           {/* Left Column: Upload Area */}
