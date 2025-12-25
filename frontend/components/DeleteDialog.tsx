@@ -48,7 +48,13 @@ export function DeleteDialog({
               Cancel
             </Button>
           </DialogClose>
-          <Button variant="destructive" onClick={handleClick}>
+          <Button
+            variant="destructive"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClick();
+            }}
+          >
             Delete
           </Button>
         </DialogFooter>

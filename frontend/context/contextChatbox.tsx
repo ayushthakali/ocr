@@ -97,14 +97,38 @@ export function ChatboxProvider({
     }
 
     const currentInput = input.trim();
+
+    //Set user message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      sender: "user",
+      text: currentInput,
+    };
+
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
+    setInput("");
+
     // Auto create chat for first time user
     if (!currentChatId) {
+      // Generate title from first user message i.e. currentInput if needed
+      let title: string;
+
+      if (currentInput) {
+        // Generate new title from first message
+        title =
+          currentInput.substring(0, 50) +
+          (currentInput.length > 50 ? "..." : "");
+      } else {
+        title = "New Chat";
+      }
+
       try {
         const response = await axios.post(
           "/api/chat/chat-history",
           {
-            title: "New Chat",
-            messages: [],
+            title: title,
+            messages: userMessage,
           },
           {
             headers: {
@@ -122,17 +146,6 @@ export function ChatboxProvider({
       }
     }
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      sender: "user",
-      text: currentInput,
-    };
-
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setInput("");
-
-    // API Call
     try {
       setIsLoading(true);
       const aiRes = await axios.post("/api/chat", {
@@ -164,14 +177,16 @@ export function ChatboxProvider({
   // Save chat history
   const saveChatHistory = useCallback(
     async (messagesToSave?: Message[]) => {
+      if (!currentChatId) {
+        return;
+      }
+
       const messagesToUse = messagesToSave || messages;
-      // Check if we have a chat to save
-      if (!currentChatId || messages.length === 0) return;
 
       // Check if chat still exists
       const currentChat = chatHistories.find((c) => c._id === currentChatId);
       if (!currentChat) {
-        console.log("Chat no longer exists, skipping save");
+        console.log("Chat doesn't exist.");
         return;
       }
 
@@ -236,6 +251,7 @@ export function ChatboxProvider({
     async (chatId: string) => {
       try {
         setIsLoadingChat(true);
+
         // Save current chat before switching
         if (currentChatId && messages.length > 0) {
           await saveChatHistory();
@@ -252,6 +268,7 @@ export function ChatboxProvider({
         setInput("");
       } catch (error) {
         const message = getErrorMessage(error);
+        toast.error(message);
         console.error(message);
       } finally {
         setIsLoadingChat(false);
@@ -344,7 +361,6 @@ export function ChatboxProvider({
     },
     [selectedCompany._id, currentChatId, setChatHistories, setIsLoadingChat]
   );
-
   return (
     <ChatboxContext.Provider
       value={{
