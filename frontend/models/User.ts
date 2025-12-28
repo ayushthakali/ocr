@@ -1,16 +1,12 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
-import bcrypt from "bcryptjs";
 
 export interface IUser extends Document {
   username: string;
   email: string;
-  password: string;
+  googleId: string;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
-  passwordResetToken?: string;
-  passwordResetExpires?: Date;
-  comparePassword(enteredPassword: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<IUser>(
@@ -33,11 +29,10 @@ const userSchema = new Schema<IUser>(
         "Please enter a valid email",
       ],
     },
-    password: {
+    googleId: {
       type: String,
-      required: [true, "Password is required"],
-      minlength: [6, "Password must be at least 6 characters"],
-      select: false, // Don't return password by default in queries
+      required: true,
+      unique: true,
     },
     isDeleted: {
       type: Boolean,
@@ -48,26 +43,6 @@ const userSchema = new Schema<IUser>(
     timestamps: true, // Automatically adds createdAt and updatedAt
   }
 );
-
-// Hash password before saving
-userSchema.pre<IUser>("save", async function () {
-  if (!this.isModified("password")) return;
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-
-// Method to compare password
-userSchema.methods.comparePassword = async function (
-  enteredPassword: string
-): Promise<boolean> {
-  try {
-    return await bcrypt.compare(enteredPassword, this.password);
-  } catch {
-    throw new Error("Password comparison failed");
-  }
-};
 
 // Prevent model overwrite during hot reload
 const User: Model<IUser> =

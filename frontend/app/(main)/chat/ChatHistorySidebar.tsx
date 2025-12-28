@@ -86,7 +86,7 @@ export default function ChatHistorySidebar() {
       </button>
 
       {/* Chat History Header */}
-      <div className="mb-3 px-1 flex justify-between text-gray-300">
+      <div className="mb-5 px-1 flex justify-between text-gray-300">
         <div className="flex items-center">
           <Clock className="w-4 h-4 mr-1" />
           <h3 className="text-sm font-semibold">
@@ -96,7 +96,13 @@ export default function ChatHistorySidebar() {
       </div>
 
       {/* Chat History List */}
-      <div className="flex-1 overflow-y-auto space-y-4 transition-all pr-2">
+      <div
+        className="flex-1 overflow-y-auto space-y-4 transition-all pr-2"
+        style={{
+          scrollbarWidth: "thin",
+          scrollbarColor: "rgba(255,255,255,0.2) transparent",
+        }}
+      >
         {/* Empty State */}
         {isLoadingChat && hasNoChats ? (
           <div className="text-center py-8">
@@ -104,7 +110,7 @@ export default function ChatHistorySidebar() {
             <p className="text-sm text-gray-500">Loading chats...</p>
           </div>
         ) : hasNoChats ? (
-          <div className="text-center py-8">
+          <div className="text-center py-16">
             <MessageSquare className="w-8 h-8 text-gray-600 mx-auto mb-2" />
             <p className="text-sm text-gray-500">No chat history yet</p>
             <p className="text-xs text-gray-600 mt-1">
