@@ -125,7 +125,7 @@ function Home() {
               Sign In
             </Link>
             <Link
-              href="/auth?mode=signup"
+              href="/auth"
               className="text-sm md:text-base text-center px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-3xl font-medium hover:scale-105 transition-all"
             >
               Get Started
@@ -169,7 +169,7 @@ function Home() {
             className="flex flex-col sm:flex-row gap-4"
           >
             <Link
-              href="/auth?mode=signup"
+              href="/auth"
               className="px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-semibold text-sm md:text-lg hover:scale-105 transition-all flex items-center justify-center gap-2"
             >
               Start Processing Free
@@ -545,7 +545,7 @@ function Home() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link
-                href="/auth?mode=signup"
+                href="/auth"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 bg-white text-purple-700 rounded-lg font-semibold text-sm md:text-lg  shadow-purple-900/30 hover:shadow-2xl hover:scale-105 transition-all"
               >
                 Get Started Free

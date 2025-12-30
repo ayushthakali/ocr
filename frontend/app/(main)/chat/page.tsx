@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, } from "react";
 import Header from "@/components/Header";
 import { ArrowUp, Loader2, Square } from "lucide-react";
 import { useChatbox } from "@/context/contextChatbox";

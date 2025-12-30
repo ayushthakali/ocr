@@ -12,7 +12,7 @@ export async function GET(req: Request) {
 
     if (!code) {
       return NextResponse.json(
-        { error: "Authoriztion code missing" },
+        { error: "Authorization code missing" },
         { status: 400 }
       );
     }
@@ -29,14 +29,14 @@ export async function GET(req: Request) {
         grant_type: "authorization_code",
       }),
     });
-    
+
     if (!tokenRes.ok) {
-        return NextResponse.json(
-            { error: "Failed to fetch Google token" },
-            { status: 401 }
-        );
+      return NextResponse.json(
+        { error: "Failed to fetch Google token" },
+        { status: 401 }
+      );
     }
-    const tokenData = await tokenRes.json();  //{"access_token": "ya29.a0...",  "expires_in": 3599,  "token_type": "Bearer"}
+    const tokenData = await tokenRes.json(); //{"access_token": "ya29.a0...",  "expires_in": 3599,  "token_type": "Bearer"}
 
     //Fetch user details
     const userRes = await fetch(
@@ -47,6 +47,12 @@ export async function GET(req: Request) {
         },
       }
     );
+    if (!userRes.ok) {
+      return NextResponse.json(
+        { error: "Failed to fetch Google user" },
+        { status: 401 }
+      );
+    }
     const googleUser = await userRes.json(); //googleUser={id,email,name}
 
     if (!googleUser.id || !googleUser.email) {
@@ -77,13 +83,10 @@ export async function GET(req: Request) {
       { expiresIn: "1d" }
     );
 
-    // Set cookie
-    const response = NextResponse.json({
-      message: `Welcome ${user.username}!`,
-      firstTime,
-      user: { id: user._id, username: user.username },
-    });
-
+    const redirectTo = firstTime ? "/set-company" : "/chat";
+    const response = NextResponse.redirect(new URL(redirectTo, req.url));
+    
+    // Set cookiee
     response.cookies.set("authToken", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // must be true in prod for HTTPS

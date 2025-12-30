@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AlertTriangle, ArrowRight, Shield } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa";
+// import { FaApple } from "react-icons/fa";
 
 export default function AuthPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -19,15 +19,15 @@ export default function AuthPage() {
     }
   };
 
-  const handleAppleSignIn = () => {
-    setAppleLoading(true);
-    try {
-      window.location.href = "/api/auth/apple";
-    } catch (error) {
-      console.error("OAuth error:", error);
-      setAppleLoading(false);
-    }
-  };
+  // const handleAppleSignIn = () => {
+  //   setAppleLoading(true);
+  //   try {
+  //     window.location.href = "/api/auth/apple";
+  //   } catch (error) {
+  //     console.error("OAuth error:", error);
+  //     setAppleLoading(false);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -68,7 +68,7 @@ export default function AuthPage() {
           </button>
 
           {/* Apple Sign In */}
-          <button
+          {/* <button
             onClick={handleAppleSignIn}
             disabled={googleLoading || appleLoading}
             type="button"
@@ -86,7 +86,7 @@ export default function AuthPage() {
                 <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity" />
               </>
             )}
-          </button>
+          </button> */}
 
           <div className="mt-6 text-center">
             <p className="text-gray-400 text-xs flex items-center justify-center gap-1">
