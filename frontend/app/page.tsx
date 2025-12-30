@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {
-  FileText,
+  MessageSquare,
   Zap,
   Shield,
   Building2,
@@ -16,6 +16,13 @@ import { motion } from "framer-motion";
 
 function Home() {
   const features = [
+    {
+      icon: MessageSquare,
+      gradient: "from-teal-500 to-teal-600",
+      title: "AI Assistant Chat",
+      description:
+        "Chat with our AI assistant to get insights, summaries, and support for your receipts and documents instantly.",
+    },
     {
       icon: Zap,
       gradient: "from-emerald-500 to-emerald-600",
@@ -50,13 +57,6 @@ function Home() {
       title: "Secure & Private",
       description:
         "Your financial data is encrypted and secure. We never share your information with third parties.",
-    },
-    {
-      icon: FileText,
-      gradient: "from-teal-500 to-teal-600",
-      title: "Multiple Formats Supported",
-      description:
-        "Upload receipts in PDF, JPG, PNG, or other image formats. We handle them all seamlessly.",
     },
   ];
 

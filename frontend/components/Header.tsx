@@ -8,13 +8,7 @@ import { useCompany } from "@/context/contextCompany";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-function Header({
-  title,
-  isGallery = false,
-}: {
-  title: string;
-  isGallery: boolean;
-}) {
+function Header({ title }: { title: string }) {
   const { isOpen } = useSidebar();
   const { selectedCompany, setIsSheetsLoading } = useCompany();
   const [isLoading, setIsLoading] = useState(false);
@@ -23,6 +17,11 @@ function Header({
   const router = useRouter();
 
   const openUserGoogleSheets = async () => {
+    if (!selectedCompany) {
+      console.error("No company selected");
+      return;
+    }
+
     try {
       setIsLoading(true);
       setIsSheetsLoading(true);

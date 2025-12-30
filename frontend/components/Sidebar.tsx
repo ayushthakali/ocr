@@ -127,7 +127,7 @@ function Sidebar() {
                         <div className="h-2 w-24 bg-white/10 rounded animate-pulse"></div>
                       ) : (
                         <p className="text-sm text-white font-medium truncate">
-                          {selectedCompany.company_name || "Select Company"}
+                          {selectedCompany?.company_name || "Select Company"}
                         </p>
                       )}
                     </div>

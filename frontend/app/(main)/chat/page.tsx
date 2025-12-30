@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, } from "react";
+import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import { ArrowUp, Loader2, Square } from "lucide-react";
 import { useChatbox } from "@/context/contextChatbox";
@@ -27,7 +27,7 @@ function Chat() {
 
   return (
     <section className="h-screen">
-      <Header title="RAG Chat - Chat with your documents" isGallery={false} />
+      <Header title="RAG Chat - Chat with your documents" />
 
       <div className="pt-28 pb-4 px-2 max-h-screen h-full w-full flex">
         {/* Sidebar */}

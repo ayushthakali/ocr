@@ -6,6 +6,7 @@ import {
   useState,
   ReactNode,
   useEffect,
+  useMemo,
   useCallback,
 } from "react";
 import axios from "axios";
@@ -20,7 +21,7 @@ interface Company {
 
 interface CompanyContextType {
   companies: Company[];
-  selectedCompany: Company;
+  selectedCompany: Company | null;
   isLoading: boolean;
   isLoadingChat: boolean;
   isUploading: boolean;
@@ -46,11 +47,9 @@ const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
 export function CompanyProvider({ children }: { children: ReactNode }) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isChatting, setIsChatting] = useState<boolean>(false);
-  const [selectedCompany, setSelectedCompanyState] = useState<Company>({
-    _id: "",
-    company_name: "",
-    pan_no: "",
-  });
+  const [selectedCompany, setSelectedCompanyState] = useState<Company | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isSwitching, setIsSwitching] = useState<boolean>(false);
@@ -60,6 +59,29 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
   const [isSheetsLoading, setIsSheetsLoading] = useState<boolean>(false);
   const [isLoadingChat, setIsLoadingChat] = useState(false);
 
+  const isBusy = useMemo(
+    () =>
+      isSwitching ||
+      isPerformingTask ||
+      isChatting ||
+      isUploading ||
+      isGalleryLoading ||
+      isConnectingSheets ||
+      isSheetsLoading ||
+      isLoadingChat,
+    [
+      isSwitching,
+      isPerformingTask,
+      isChatting,
+      isUploading,
+      isGalleryLoading,
+      isConnectingSheets,
+      isSheetsLoading,
+      isLoadingChat,
+    ]
+  );
+
+  //Fetch companies
   const fetchCompanies = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -81,24 +103,24 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
   //Handle company switching with freeze logic
   const setSelectedCompany = useCallback(
     async (company: Company) => {
-      if (
-        isSwitching ||
-        isPerformingTask ||
-        isChatting ||
-        isUploading ||
-        isGalleryLoading ||
-        isConnectingSheets ||
-        isSheetsLoading ||
-        isLoadingChat
-      ) {
+      if (isBusy) {
         console.warn("Company switch blocked - another operation in progress.");
         toast.warning("Please wait for the current operation to complete.");
         return;
       }
+
+      if (selectedCompany?._id === company._id) {
+        toast.info("Already on this company");
+        console.log("Already on this company");
+        return;
+      }
+
       try {
         setIsSwitching(true);
         setSelectedCompanyState(company);
-        sessionStorage.setItem("Active_Company", JSON.stringify(company));
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("Active_Company", JSON.stringify(company));
+        }
         await new Promise((resolve) => setTimeout(resolve, 500));
         toast.success(`Switched to ${company.company_name}`);
       } catch (err) {
@@ -108,95 +130,112 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
         setIsSwitching(false);
       }
     },
-    [
-      isSwitching,
-      isPerformingTask,
-      isChatting,
-      isUploading,
-      isGalleryLoading,
-      isConnectingSheets,
-      isSheetsLoading,
-      isLoadingChat,
-    ]
+    [isBusy, selectedCompany]
   );
 
-  const addCompany = async (companyData: {
-    company_name: string;
-    pan_no: string;
-  }): Promise<boolean> => {
-    try {
-      setIsPerformingTask(true); // Freeze switching
-      const response = await axios.post(
-        "/api/company/set-company",
-        companyData,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+  // Add new company
+  const addCompany = useCallback(
+    async (companyData: {
+      company_name: string;
+      pan_no: string;
+    }): Promise<boolean> => {
+      try {
+        setIsPerformingTask(true); // Freeze switching
+        const response = await axios.post(
+          "/api/company/set-company",
+          companyData,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
 
-      toast.success(response.data.message || "Company added successfully!");
-      await fetchCompanies();
-      return true;
-    } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return false;
-    } finally {
-      setIsPerformingTask(false);
-    }
-  };
-
-  const deleteCompany = async (
-    companyId: string,
-    company_name: string
-  ): Promise<boolean> => {
-    try {
-      setIsPerformingTask(true);
-      await axios.delete(`/api/company/delete-company/${companyId}`);
-      toast.success(`Company: ${company_name} deleted successfully`);
-      await fetchCompanies();
-      const storedValue = sessionStorage.getItem("Active_Company");
-      const activeCompany = storedValue ? JSON.parse(storedValue) : null;
-      if (activeCompany._id === companyId) {
-        sessionStorage.removeItem("Active_Company");
+        toast.success(response.data.message || "Company added successfully!");
+        await fetchCompanies();
+        return true;
+      } catch (err) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return false;
+      } finally {
+        setIsPerformingTask(false);
       }
-      fetchCompanies();
-      return true;
-    } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return false;
-    } finally {
-      setIsPerformingTask(false);
-    }
-  };
+    },
+    [fetchCompanies]
+  );
+
+  // Delete an existing company
+  const deleteCompany = useCallback(
+    async (companyId: string, company_name: string): Promise<boolean> => {
+      if (companyId === selectedCompany?._id) {
+        toast.warning(
+          "Cannot delete an active company. Please switch the company first.",
+          { autoClose: 2800 }
+        );
+        return false;
+      }
+
+      try {
+        setIsPerformingTask(true);
+        await axios.delete(`/api/company/delete-company/${companyId}`);
+        toast.success(`Company: ${company_name} deleted successfully`);
+        await fetchCompanies();
+        const storedValue = sessionStorage.getItem("Active_Company");
+        const activeCompany = storedValue ? JSON.parse(storedValue) : null;
+        if (activeCompany._id === companyId) {
+          sessionStorage.removeItem("Active_Company");
+        }
+        return true;
+      } catch (err) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return false;
+      } finally {
+        setIsPerformingTask(false);
+      }
+    },
+    [fetchCompanies, selectedCompany]
+  );
 
   useEffect(() => {
     fetchCompanies();
   }, [fetchCompanies]);
 
+  const contextValue = useMemo(
+    () => ({
+      companies,
+      selectedCompany,
+      isLoading,
+      isLoadingChat,
+      isSwitching,
+      isUploading,
+      isPerformingTask,
+      setSelectedCompany,
+      fetchCompanies,
+      addCompany,
+      deleteCompany,
+      setIsChatting,
+      setIsLoadingChat,
+      setIsUploading,
+      setIsGalleryLoading,
+      setIsConnectingSheets,
+      setIsSheetsLoading,
+    }),
+    [
+      companies,
+      selectedCompany,
+      isLoading,
+      isLoadingChat,
+      isSwitching,
+      isUploading,
+      isPerformingTask,
+      setSelectedCompany,
+      fetchCompanies,
+      addCompany,
+      deleteCompany,
+    ]
+  );
   return (
-    <CompanyContext.Provider
-      value={{
-        companies,
-        selectedCompany,
-        isLoading,
-        isLoadingChat,
-        isSwitching,
-        isUploading,
-        isPerformingTask,
-        setSelectedCompany,
-        fetchCompanies,
-        addCompany,
-        deleteCompany,
-        setIsChatting,
-        setIsLoadingChat,
-        setIsUploading,
-        setIsGalleryLoading,
-        setIsConnectingSheets,
-        setIsSheetsLoading,
-      }}
-    >
+    <CompanyContext.Provider value={contextValue}>
       {children}
     </CompanyContext.Provider>
   );

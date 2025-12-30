@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,8 +23,10 @@ export function DeleteDialog({
   description: string;
   handleClick: () => void;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"

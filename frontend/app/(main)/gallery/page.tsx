@@ -30,7 +30,7 @@ function Gallery() {
 
   return (
     <section>
-      <Header title="Gallery" isGallery />
+      <Header title="Gallery" />
       {/* pt-36 */}
       <div className="pt-24 px-4 pb-6">
         {/* Filter part */}

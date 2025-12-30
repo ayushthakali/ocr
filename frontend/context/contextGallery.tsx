@@ -61,6 +61,12 @@ export function GalleryProvider({ children }: { children: ReactNode }) {
   });
 
   const fetchImageUrl = useCallback(async () => {
+    if (!selectedCompany?._id) {
+      console.log("Waiting for company to load...");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsGalleryLoading(true);
       const res = await axios.get("/api/gallery", {

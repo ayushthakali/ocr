@@ -38,7 +38,7 @@ interface UploadContextType {
     companyId: string,
     companyName: string
   ) => Promise<void>;
-  processFiles: (files: File[], companyId: string, companyName: string) => void;
+  processFiles: (files: File[], companyId: string , companyName: string) => void;
   setErrorMessage: (message: string | null) => void;
   isUploadDisabled: boolean;
 }

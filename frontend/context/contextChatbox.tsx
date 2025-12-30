@@ -72,13 +72,13 @@ export function ChatboxProvider({
     } finally {
       setIsLoadingChat(false);
     }
-  }, [selectedCompany._id, setIsLoadingChat]);
+  }, [selectedCompany, setIsLoadingChat]);
 
   useEffect(() => {
     setMessages([]);
     setInput("");
     setCurrentChatId(null);
-  }, [selectedCompany._id]);
+  }, [selectedCompany]);
 
   useEffect(() => {
     setIsChatting(isLoading);
@@ -88,7 +88,7 @@ export function ChatboxProvider({
     if (selectedCompany?._id) {
       loadChatHistories();
     }
-  }, [selectedCompany._id, loadChatHistories]);
+  }, [selectedCompany, loadChatHistories]);
 
   // Send message to backend
   const sendMessage = async () => {
@@ -237,13 +237,7 @@ export function ChatboxProvider({
         }
       }
     },
-    [
-      currentChatId,
-      messages,
-      chatHistories,
-      selectedCompany._id,
-      setChatHistories,
-    ]
+    [currentChatId, messages, chatHistories, selectedCompany, setChatHistories]
   );
 
   //Load selected chat history
@@ -275,7 +269,7 @@ export function ChatboxProvider({
       }
     },
     [
-      selectedCompany._id,
+      selectedCompany,
       currentChatId,
       messages,
       saveChatHistory,
@@ -325,7 +319,7 @@ export function ChatboxProvider({
       setIsLoadingChat(false);
     }
   }, [
-    selectedCompany._id,
+    selectedCompany,
     loadChatHistories,
     currentChatId,
     messages,
@@ -359,7 +353,7 @@ export function ChatboxProvider({
         setIsLoadingChat(false);
       }
     },
-    [selectedCompany._id, currentChatId, setChatHistories, setIsLoadingChat]
+    [selectedCompany, currentChatId, setChatHistories, setIsLoadingChat]
   );
 
   return (
