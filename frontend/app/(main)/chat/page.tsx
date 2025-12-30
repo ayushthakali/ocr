@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, } from "react";
 import Header from "@/components/Header";
 import { ArrowUp, Loader2, Square } from "lucide-react";
 import { useChatbox } from "@/context/contextChatbox";
@@ -36,7 +36,13 @@ function Chat() {
         {/* Chat container */}
         <div className="w-full flex flex-col items-center justify-start flex-1">
           {/* Messages area */}
-          <div className="relative w-full max-w-4xl flex-1 rounded-xl overflow-y-auto px-2 scrollbar-hid">
+          <div
+            className="relative w-full max-w-4xl flex-1 rounded-xl overflow-y-auto px-2 "
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "rgba(255,255,255,0.2) transparent",
+            }}
+          >
             {/* Chat loading overlay */}
             {isLoadingChat && (
               <div className="absolute inset-0 z-20 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f0f] to-[#0f0a10] flex items-center justify-center rounded-xl transition-opacity">
@@ -68,7 +74,7 @@ function Chat() {
                     <div
                       className={`p-2 rounded-2xl ${
                         m.sender === "user"
-                          ? "bg-white/10 text-white border border-white/20 rounded-br-sm max-w-[80%]"
+                          ? "bg-white/5 text-white border border-white/10 rounded-br-sm max-w-[80%]"
                           : "text-white"
                       }`}
                     >
@@ -76,26 +82,54 @@ function Chat() {
                         <ReactMarkdown
                           components={{
                             p: ({ children }) => (
-                              <p className="mb-2 last:mb-0">{children}</p>
+                              <p className="mb-2 text-white/90 text-base font-light">
+                                {children}
+                              </p>
+                            ),
+                            code: ({ children }) => (
+                              <code className="px-2 py-1 bg-white/10 rounded text-blue-300 text-sm font-mono">
+                                {children}
+                              </code>
                             ),
                             strong: ({ children }) => (
-                              <strong className="font-bold">{children}</strong>
+                              <strong className="font-semibold text-white">
+                                {children}
+                              </strong>
                             ),
                             em: ({ children }) => (
-                              <em className="italic">{children}</em>
+                              <em className="italic text-blue-200">
+                                {children}
+                              </em>
                             ),
                             ul: ({ children }) => (
-                              <ul className="list-disc ml-4 mb-2">
+                              <ul className="space-y-2 my-2 ml-4">
                                 {children}
                               </ul>
                             ),
                             ol: ({ children }) => (
-                              <ol className="list-decimal ml-4 mb-2">
+                              <ol className="space-y-2 my-2 ml-4 list-decimal">
                                 {children}
                               </ol>
                             ),
                             li: ({ children }) => (
-                              <li className="mb-1">{children}</li>
+                              <li className="text-white/90 leading-relaxed text-base pl-2">
+                                {children}
+                              </li>
+                            ),
+                            h1: ({ children }) => (
+                              <h1 className="text-2xl font-bold text-white my-4">
+                                {children}
+                              </h1>
+                            ),
+                            h2: ({ children }) => (
+                              <h2 className="text-xl font-semibold text-white mb-3 mt-4">
+                                {children}
+                              </h2>
+                            ),
+                            h3: ({ children }) => (
+                              <h3 className="text-lg font-medium text-white mb-2 mt-4">
+                                {children}
+                              </h3>
                             ),
                           }}
                         >
@@ -113,7 +147,7 @@ function Chat() {
                 {/* Inline thinking indicator */}
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="max-w-[80%] p-2 rounded-2xl bg-white/10 text-white border border-white/20 rounded-bl-sm">
+                    <div className="max-w-[80%] p-2 rounded-2xl bg-white/5 text-white border border-white/10 rounded-bl-sm">
                       <div className="flex items-center gap-1">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         <span className="text-sm">Thinking...</span>

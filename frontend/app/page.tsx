@@ -7,7 +7,6 @@ import {
   Shield,
   Building2,
   FileSpreadsheet,
-  Receipt,
   FileCheck,
   CheckCircle,
   CloudUpload,
@@ -106,17 +105,12 @@ function Home() {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="container mx-auto px-6 py-6"
+        className="container mx-auto px-6 py-8 md:py-6"
       >
         <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-500 rounded-full flex items-center justify-center">
-              <Receipt className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent font-poppins">
-              Receipt AI
-            </span>
-          </div>
+          <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent font-poppins">
+            Receipt AI
+          </h1>
 
           <motion.div
             initial={{ x: 100, opacity: 0 }}
@@ -126,15 +120,15 @@ function Home() {
           >
             <Link
               href="/auth"
-              className="text-white font-medium transition px-4 py-2 rounded-3xl hover:scale-105 transition-all"
+              className="text-sm md:text-base text-center text-white font-medium transition px-4 py-2 rounded-3xl hover:scale-105 transition-all"
             >
               Sign In
             </Link>
             <Link
-              href="/auth?mode=signup"
-              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-3xl font-medium hover:scale-105 transition-all"
+              href="/auth"
+              className="text-sm md:text-base text-center px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-3xl font-medium hover:scale-105 transition-all"
             >
-              Get Started Free
+              Get Started
             </Link>
           </motion.div>
         </nav>
@@ -142,12 +136,12 @@ function Home() {
 
       {/* Hero Section */}
       <main className="container mx-auto px-6">
-        <motion.div className="flex flex-col items-center text-center py-20 text-white">
+        <motion.div className="flex flex-col items-center text-center py-14 md:py-20 text-white">
           <motion.h1
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6 }}
-            className="text-6xl md:text-7xl font-bold mb-6 max-w-4xl"
+            className="text-5xl md:text-7xl font-bold mb-6 max-w-4xl"
           >
             Transform receipts into
             <span className="bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
@@ -161,7 +155,7 @@ function Home() {
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl text-gray-200 mb-10 max-w-2xl"
+            className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl"
           >
             Upload receipts, invoices, and bank statements. Our AI extracts
             details and exports to CSV automatically. Manage multiple companies
@@ -175,15 +169,15 @@ function Home() {
             className="flex flex-col sm:flex-row gap-4"
           >
             <Link
-              href="/auth?mode=signup"
-              className="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-semibold text-lg hover:scale-105 transition-all flex items-center justify-center gap-2"
+              href="/auth"
+              className="px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-semibold text-sm md:text-lg hover:scale-105 transition-all flex items-center justify-center gap-2"
             >
               Start Processing Free
               <Zap className="w-5 h-5" />
             </Link>
             <Link
               href="#features"
-              className="px-8 py-4 bg-white text-gray-700 rounded-lg font-semibold text-lg hover:scale-105 transition-all"
+              className="px-6 py-3 md:px-8 md:py-4 bg-white text-gray-700 rounded-lg font-semibold text-sm md:text-lg hover:scale-105 transition-all"
             >
               See How It Works
             </Link>
@@ -202,7 +196,7 @@ function Home() {
 
               </div> */}
 
-              <div className="relative bg-gray-800/90 rounded-2xl shadow-2xl p-8 border border-gray-700/50">
+              <div className="relative bg-gray-800/90 rounded-2xl shadow-2xl p-5 md:p-8 border border-gray-700/50">
                 {/* Browser Controls */}
                 <div className="flex gap-2 mb-6">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -213,7 +207,7 @@ function Home() {
                 {/* Upload Section */}
                 <div>
                   <div className="flex flex-col items-start gap-3 ">
-                    <div className="flex items-center justify-between w-full mb-3">
+                    <div className="flex items-center justify-between w-full mb-3 gap-2">
                       <div className="flex items-center gap-2">
                         <div className="p-2 bg-purple-500/20 rounded-lg">
                           <CloudUpload className="w-6 h-6 text-purple-400" />
@@ -222,14 +216,16 @@ function Home() {
                           <h3 className="font-semibold text-white">
                             Upload Documents
                           </h3>
-                          <p className="text-xs text-gray-400">
+                          <p className="md:block hidden text-xs text-gray-400">
                             Drag and drop or click to select files
                           </p>
                         </div>
                       </div>
-                      <button className="flex gap-2 items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-800/90 to-purple-800 rounded-xl">
-                        <SquareArrowOutUpRight className="w-5 h-5" />
-                        <span>View Google Sheets</span>
+                      <button className="flex gap-2 items-center justify-center px-3 md:px-4 py-2 bg-gradient-to-r from-blue-800/90 to-purple-800 rounded-xl">
+                        <SquareArrowOutUpRight className="hidden md:block flex-shrink-0 w-5 h-5" />
+                        <span className="text-sm md:text-base">
+                          View Google Sheets
+                        </span>
                       </button>
                     </div>
                     <div className="grid md:grid-cols-2 gap-6 w-full">
@@ -303,10 +299,10 @@ function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Everything you need for receipt management
             </h2>
-            <p className="text-xl text-gray-200">
+            <p className="text-lg md:text-xl text-gray-200">
               Powerful AI features to streamline your bookkeeping
             </p>
           </motion.div>
@@ -317,7 +313,7 @@ function Home() {
               return (
                 <motion.div
                   key={index}
-                  className="bg-white/5 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow border border-white/10"
+                  className="flex md:flex-col md:items-start items-center gap-4 bg-white/5 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow border border-white/10"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -328,7 +324,7 @@ function Home() {
                   }}
                 >
                   <motion.div
-                    className={`w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center mb-6`}
+                    className={`flex-shrink-0 size-14 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center md:mb-6`}
                     initial={{ scale: 0, rotate: -180 }}
                     whileInView={{ scale: 1, rotate: 0 }}
                     viewport={{ once: true, amount: 0.5 }}
@@ -339,10 +335,16 @@ function Home() {
                       stiffness: 200,
                     }}
                   >
-                    <Icon className="w-7 h-7 text-white" />
+                    <Icon className="size-7 text-white" />
                   </motion.div>
-                  <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                  <p className="text-gray-200">{feature.description}</p>
+                  <div>
+                    <h3 className="text-lg md:text-xl font-bold md:mb-3">
+                      {feature.title}
+                    </h3>
+                    <p className="text-sm md:text-base text-gray-200">
+                      {feature.description}
+                    </p>
+                  </div>
                 </motion.div>
               );
             })}
@@ -358,8 +360,10 @@ function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-xl text-gray-300">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              How It Works
+            </h2>
+            <p className="text-lg md:text-xl text-gray-300">
               Three simple steps to organized finances
             </p>
           </motion.div>
@@ -387,7 +391,7 @@ function Home() {
                       duration: 0.6,
                       delay: i * 0.2,
                     }}
-                    className={`w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg`}
+                    className={`size-14 md:size-16 bg-gradient-to-br from-purple-600 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg`}
                     style={{ boxShadow: "0 0 25px rgba(147, 51, 234, 0.6)" }}
                   >
                     <span className="text-white text-2xl font-bold">
@@ -399,12 +403,12 @@ function Home() {
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.2 + 0.4 }}
-                    className="text-xl font-bold mb-2"
+                    className="text-lg md:text-xl font-bold mb-2"
                   >
                     {step.title}
                   </motion.h3>
                   <motion.p
-                    className="text-gray-300"
+                    className="text-sm md:text-base text-gray-300"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
@@ -433,7 +437,7 @@ function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-3xl font-bold mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 Why Choose AI Receipt?
               </h2>
               <motion.div
@@ -516,7 +520,7 @@ function Home() {
             transition={{ duration: 0.6 }}
           >
             <motion.h2
-              className="text-4xl font-bold mb-4"
+              className="text-3xl md:text-4xl font-bold mb-4"
               initial={{ y: 30, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
@@ -525,7 +529,7 @@ function Home() {
               Ready to automate your bookkeeping?
             </motion.h2>
             <motion.p
-              className="text-xl mb-8 text-gray-100"
+              className="text-base md:text-xl mb-8 text-gray-100"
               initial={{ y: 30, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
@@ -541,15 +545,15 @@ function Home() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link
-                href="/auth?mode=signup"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-purple-700 rounded-lg font-semibold text-lg shadow-purple-900/30 hover:shadow-2xl hover:scale-105 transition-all"
+                href="/auth"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 bg-white text-purple-700 rounded-lg font-semibold text-sm md:text-lg  shadow-purple-900/30 hover:shadow-2xl hover:scale-105 transition-all"
               >
                 Get Started Free
                 <Zap className="w-5 h-5 animate-pulse" />
               </Link>
               <Link
                 href="/auth"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/20 text-white border border-white/30 rounded-lg font-semibold text-lg backdrop-blur-md hover:bg-white/20 hover:border-white/50 transition-all"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 bg-white/20 text-white border border-white/30 rounded-lg font-semibold text-sm md:text-lg backdrop-blur-md hover:bg-white/20 hover:border-white/50 transition-all"
               >
                 Sign In
               </Link>
@@ -569,7 +573,7 @@ function Home() {
               </div>
               <span className="font-bold text-gray-200">AI Receipt</span>
             </div> */}
-            <p className="text-gray-200 text-sm">
+            <p className="text-gray-200 text-xs md:text-sm">
               © 2025 AI Receipt. All rights reserved.
             </p>
             {/* <div className="flex gap-6 text-sm text-gray-100">

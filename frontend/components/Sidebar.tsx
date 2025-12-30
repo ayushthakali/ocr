@@ -54,28 +54,33 @@ function Sidebar() {
     }
   };
 
+  const renderLoadingOverlay = () => {
+    if (typeof document === "undefined" || !isDisabled) return null;
+
+    return createPortal(
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999]">
+        <div className="bg-slate-900/90 border border-white/10 rounded-2xl px-8 py-6 flex flex-col items-center gap-4 shadow-2xl">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-blue-500" />
+            <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-pulse" />
+          </div>
+          <div className="text-center">
+            <p className="text-white text-base font-semibold mb-1">
+              {isSwitching ? "Switching Company" : "Processing"}
+            </p>
+            <p className="text-gray-400 text-sm">Please wait a moment...</p>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  };
+
   return (
     <>
       {/* Loading overlay - now renders at document.body level */}
-      {isDisabled &&
-        typeof window !== "undefined" &&
-        createPortal(
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999]">
-            <div className="bg-slate-900/90 border border-white/10 rounded-2xl px-8 py-6 flex flex-col items-center gap-4 shadow-2xl">
-              <div className="relative">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-blue-500" />
-                <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-pulse" />
-              </div>
-              <div className="text-center">
-                <p className="text-white text-base font-semibold mb-1">
-                  {isSwitching ? "Switching Company" : "Processing"}
-                </p>
-                <p className="text-gray-400 text-sm">Please wait a moment...</p>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
+      {renderLoadingOverlay()}
+
       <aside>
         <div
           className={`fixed top-0 left-0 w-72 min-h-screen bg-gradient-to-b from-[#080808] to-[#0f0f0f] border-r border-gray-800 transition-all duration-300  ${
@@ -145,13 +150,14 @@ function Sidebar() {
                       companies.map((company) => (
                         <button
                           key={company._id}
+                          disabled={company._id === selectedCompany._id}
                           onClick={() => {
                             setSelectedCompany(company);
                             setIsCompanyDropdownOpen(false);
                           }}
                           className={`w-full px-3 py-2 text-left text-sm transition-colors hover:bg-white/10 ${
                             selectedCompany === company
-                              ? "bg-white/5 text-white"
+                              ? "bg-white/5 text-white hover:cursor-not-allowed"
                               : "text-gray-400"
                           }`}
                         >

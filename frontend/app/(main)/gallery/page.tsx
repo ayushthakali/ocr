@@ -58,7 +58,7 @@ function Gallery() {
                 className="text-white/80 px-2 py-1 bg-white/10 rounded-lg border border-white/20 ml-2 "
               />
             </div>
-            <div className="space-x-4">
+            <div className="flex md:flex-row flex-col gap-4">
               <button
                 type="submit"
                 className="px-6 py-1 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white cursor-pointer font-medium transition-all duration-200 hover:scale-105"
@@ -126,7 +126,7 @@ function Gallery() {
             </h2>
 
             {/* Main gallery grid */}
-            <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-8 py-2 ">
+            <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 py-2 ">
               {filteredDocs.length == 0 ? (
                 <h2 className="text-white text-center text-3xl md:col-span-3 lg:col-span-5 mt-12">
                   No documents of type &quot;{filter}&quot; found.

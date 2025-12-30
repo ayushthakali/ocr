@@ -32,13 +32,13 @@ type Message = {
   text: string;
 };
 
-type ChatHistoryItem = {
+export interface ChatHistoryItem {
   _id: string;
   title: string;
   messages: Message[];
   createdAt: Date;
   updatedAt: Date;
-};
+}
 
 const ChatboxContext = createContext<ChatboxContextType | undefined>(undefined);
 
