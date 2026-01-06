@@ -234,6 +234,7 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
       deleteCompany,
     ]
   );
+  
   return (
     <CompanyContext.Provider value={contextValue}>
       {children}

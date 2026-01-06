@@ -67,8 +67,9 @@ export function SheetsProvider({ children }: { children: ReactNode }) {
 
   //Check sheet connection
   const checkSheetConnection = useCallback(async () => {
-    if (!selectedCompany?._id) return;
-
+    if (!selectedCompany?._id) {
+      return;
+    }
     try {
       setIsConnectingSheets(true);
       const response = await axios.get("/api/sheets/status", {
@@ -108,6 +109,11 @@ export function SheetsProvider({ children }: { children: ReactNode }) {
 
   // Connection to google sheets
   const handleConnect = useCallback(async () => {
+    if (!selectedCompany?._id) {
+      console.error("No Active company.");
+      toast.error("No Active company");
+      return;
+    }
     try {
       setIsConnectingSheets(true);
       setIsChecking(true);
@@ -135,6 +141,11 @@ export function SheetsProvider({ children }: { children: ReactNode }) {
   // Switch google sheets
   const switchSheet = useCallback(
     async (sheet: Sheet) => {
+      if (!selectedCompany?._id) {
+        console.error("No Active company.");
+        toast.error("No Active company");
+        return;
+      }
       if (sheet.spreadsheet_id === selectedSheet.spreadsheet_id) {
         toast.info("This sheet is already active");
         return;
@@ -164,6 +175,11 @@ export function SheetsProvider({ children }: { children: ReactNode }) {
 
   // Create new sheet
   const createNewSheet = useCallback(async () => {
+    if (!selectedCompany?._id) {
+      console.error("No Active company.");
+      toast.error("No Active company");
+      return;
+    }
     try {
       setIsProcessing(true);
       const response = await axios.post("/api/sheets/create-new-sheet", null, {
@@ -188,6 +204,11 @@ export function SheetsProvider({ children }: { children: ReactNode }) {
 
   // Disconnect sheet
   const disconnectSheet = useCallback(async () => {
+    if (!selectedCompany?._id) {
+      console.error("No Active company.");
+      toast.error("No Active company");
+      return;
+    }
     try {
       setIsProcessing(true);
       await axios.post("/api/sheets/disconnect-sheet", null, {

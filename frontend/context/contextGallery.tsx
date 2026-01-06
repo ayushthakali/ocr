@@ -91,6 +91,12 @@ export function GalleryProvider({ children }: { children: ReactNode }) {
 
   //Downloading CSV
   const handleDownloadCSV = useCallback(async () => {
+    if (!selectedCompany?._id) {
+      console.error("No Active company.");
+      toast.error("No Active company");
+      return;
+    }
+
     try {
       setIsDownloading(true);
       setIsGalleryLoading(true);
@@ -149,6 +155,11 @@ export function GalleryProvider({ children }: { children: ReactNode }) {
     e.preventDefault();
     if (new Date(formData.from) > new Date(formData.to)) {
       toast.error("From date should be earlier than To date!");
+      return;
+    }
+    if (!selectedCompany?._id) {
+      console.error("No Active company.");
+      toast.error("No Active company");
       return;
     }
 

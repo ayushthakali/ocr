@@ -150,7 +150,7 @@ function Sidebar() {
                       companies.map((company) => (
                         <button
                           key={company._id}
-                          disabled={company._id === selectedCompany._id}
+                          disabled={company._id === selectedCompany?._id}
                           onClick={() => {
                             setSelectedCompany(company);
                             setIsCompanyDropdownOpen(false);
@@ -240,7 +240,7 @@ function Sidebar() {
                     }`}
               >
                 <Settings
-                  className={`w-6 h-6 group-hover:rotate-5 transition-all duration-300 ease-in
+                  className={`w-6 h-6 group-hover:rotate-180 transition-all duration-600 ease-in
                         ${
                           pathname === "/settings"
                             ? "text-white "

@@ -98,8 +98,9 @@ function Home() {
     },
   ];
 
+  // from-slate-900 via-purple-900 to-slate-900
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div className="min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Header */}
       <motion.header
         initial={{ y: -100, opacity: 0 }}
@@ -415,7 +416,7 @@ function Home() {
                     transition={{ delay: i * 0.2 + 0.5 }}
                   >
                     {step.description}
-                  </motion.p>{" "}
+                  </motion.p>
                 </motion.div>
               ))}
             </div>

@@ -57,6 +57,12 @@ export function ChatboxProvider({
 
   //Load chat histories
   const loadChatHistories = useCallback(async () => {
+    if (!selectedCompany?._id) {
+      console.error("No Active company.");
+      toast.error("No Active company");
+      return;
+    }
+
     try {
       setIsLoadingChat(true);
       const response = await axios.get("/api/chat/chat-history", {
@@ -92,7 +98,9 @@ export function ChatboxProvider({
 
   // Send message to backend
   const sendMessage = async () => {
-    if (!input.trim()) {
+    if (!selectedCompany?._id) {
+      console.error("No Active company.");
+      toast.error("No Active company");
       return;
     }
 
@@ -177,10 +185,11 @@ export function ChatboxProvider({
   // Save chat history
   const saveChatHistory = useCallback(
     async (messagesToSave?: Message[]) => {
-      if (!currentChatId) {
+      if (!selectedCompany?._id) {
+        console.error("No Active company.");
+        toast.error("No Active company");
         return;
       }
-
       const messagesToUse = messagesToSave || messages;
 
       // Check if chat still exists
@@ -243,6 +252,12 @@ export function ChatboxProvider({
   //Load selected chat history
   const loadChatHistory = useCallback(
     async (chatId: string) => {
+      if (!selectedCompany?._id) {
+        console.error("No Active company.");
+        toast.error("No Active company");
+        return;
+      }
+
       try {
         setIsLoadingChat(true);
 
@@ -279,6 +294,12 @@ export function ChatboxProvider({
 
   // Create new chat
   const createNewChat = useCallback(async () => {
+    if (!selectedCompany?._id) {
+      console.error("No Active company.");
+      toast.error("No Active company");
+      return;
+    }
+
     try {
       setIsLoadingChat(true);
 
@@ -330,6 +351,12 @@ export function ChatboxProvider({
   // Delete a chat history
   const deleteChat = useCallback(
     async (chatId: string) => {
+      if (!selectedCompany?._id) {
+        console.error("No Active company.");
+        toast.error("No Active company");
+        return;
+      }
+
       try {
         setIsLoadingChat(true);
         await axios.delete(`/api/chat/chat-history/${chatId}`, {
