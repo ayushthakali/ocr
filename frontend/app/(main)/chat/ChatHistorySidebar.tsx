@@ -55,7 +55,9 @@ const ChatItem = ({
           <h4 className="text-sm font-medium text-white truncate mb-1">
             {chat.title}
           </h4>
-          <p className="text-xs text-gray-400">{formatDate(chat.updatedAt)}</p>
+          <p className="text-xs text-gray-400" suppressHydrationWarning>
+            {formatDate(chat.updatedAt)}
+          </p>
         </div>
         <DeleteDialog
           title="Confirm Deletion?"

@@ -6,6 +6,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
+import { nanoid } from "nanoid";
 import axios from "axios";
 import { useCompany } from "./contextCompany";
 import { getErrorMessage } from "@/lib/getError";
@@ -108,7 +109,7 @@ export function ChatboxProvider({
 
     //Set user message
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: nanoid(16),
       sender: "user",
       text: currentInput,
     };
@@ -161,7 +162,7 @@ export function ChatboxProvider({
         selectedCompany: selectedCompany._id,
       });
       const aiMessage: Message = {
-        id: Date.now().toString(),
+        id: nanoid(16),
         sender: "ai",
         text: aiRes.data,
       };
@@ -172,7 +173,7 @@ export function ChatboxProvider({
     } catch (err) {
       console.error("API Error: ", err);
       const errorMessage: Message = {
-        id: Date.now().toString(),
+        id: nanoid(16),
         sender: "ai",
         text: "Sorry, I encountered an error. Please try again.",
       };
