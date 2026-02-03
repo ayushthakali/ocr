@@ -117,17 +117,10 @@ function Home() {
             initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex items-center gap-4"
           >
             <Link
               href="/auth"
-              className="text-sm md:text-base text-center text-white font-medium transition px-4 py-2 rounded-3xl hover:scale-105 transition-all"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/auth"
-              className="text-sm md:text-base text-center px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-3xl font-medium hover:scale-105 transition-all"
+              className="text-sm md:text-lg text-center px-8 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-3xl font-medium hover:scale-105 transition-all"
             >
               Get Started
             </Link>
@@ -187,10 +180,10 @@ function Home() {
           {/* Demo Image Placeholder */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true, amount: 0.25 }}
-            className="mt-16 w-full max-w-6xl pt-20"
+            className="mt-16 w-full max-w-6xl pt-12"
           >
             <div className="relative">
               {/* <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-blue-400 rounded-2xl blur-3xl opacity-20">
@@ -564,9 +557,9 @@ function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="pb-6 ">
+      <footer className="pb-4 ">
         <div className="mx-auto px-6">
-          <div className="flex flex-col justify-center items-center gap-6">
+          <div className="flex flex-col justify-center items-center gap-4">
             <div className="origin-center bg-gradient-to-r from-transparent via-purple-400/70 via-blue-400/70 to-transparent w-full h-[2px]" />
             {/* <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
@@ -574,8 +567,8 @@ function Home() {
               </div>
               <span className="font-bold text-gray-200">AI Receipt</span>
             </div> */}
-            <p className="text-gray-200 text-xs md:text-sm">
-              © 2025 AI Receipt. All rights reserved.
+            <p className="text-gray-400 text-xs md:text-sm">
+              © {new Date().getFullYear()} AI Receipt. All rights reserved.
             </p>
             {/* <div className="flex gap-6 text-sm text-gray-100">
               <a href="#" className="hover:text-gray-400 transition">

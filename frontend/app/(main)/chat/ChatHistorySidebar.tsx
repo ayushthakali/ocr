@@ -226,7 +226,7 @@ export default function ChatHistorySidebar() {
               deleteChat={deleteChat}
               loadChatHistory={loadChatHistory}
             />
-
+ 
             {/* Last 7 Days Section */}
             <ChatSection
               title="Last 7 days"
